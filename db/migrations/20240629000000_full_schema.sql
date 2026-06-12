@@ -475,83 +475,84 @@ CREATE INDEX idx_write_logs_thread ON write_logs(thread_id, response_number);
 -- SEED DATA
 -- ############################################################
 
-INSERT INTO threads(
-    id,
-    title,
-    posted_at,
-    updated_at,
-    epoch_id
-)
-VALUES(
-    '01953082-1ea4-7a71-8ac2-395cedbd9ecb',
-    'ようこそ！',
-    '2025-01-01 00:00:00',
-    '2025-01-01 00:00:00',
-    1735657200
-);
-
-INSERT INTO responses(
-    id,
-    thread_id,
-    response_number,
-    author_name,
-    mail,
-    posted_at,
-    response_content,
-    hash_id,
-    trip
-)
-VALUES(
-    '01953082-8ae5-7df7-8446-e02b6b9189e7',
-    '01953082-1ea4-7a71-8ac2-395cedbd9ecb',
-    1,
-    'KassanBBS',
-    'dummy@example.com',
-    '2025-01-01 00:00:00',
-    'KassanBBS Boardへようこそ！',
-    'welcome.',
-    'UNhY4JhezH9g'
-);
-
-INSERT INTO config(
-    board_name,
-    local_rule,
-    nanashi_name,
-    max_content_length,
-    admin_password
-)
-VALUES(
-    'KassanBBS Board',
-    'ローカルルールはここに記述',
-    '名無しさん',
-    1000,
-    '$2b$10$9gxLQMYSDoBdbz/1znmieu1vjhZ2VGzKd21azF112uG45DvQNn0E6'
-);
-
-INSERT INTO admin_users(id, username, password_hash, full_name, is_super_admin)
-SELECT
-    '00000000-0000-0000-0000-000000000001'::uuid,
-    'admin',
-    admin_password,
-    'Administrator',
-    TRUE
-FROM config
-LIMIT 1;
-
-INSERT INTO ninpocho_config(id) VALUES (1) ON CONFLICT DO NOTHING;
-
-INSERT INTO auto_delete_config(id) VALUES (1) ON CONFLICT DO NOTHING;
-
-INSERT INTO samba_config(id) VALUES (1) ON CONFLICT DO NOTHING;
-
-INSERT INTO boards(id, board_key, board_name, local_rule, nanashi_name)
-SELECT '00000000-0000-0000-0000-000000000001'::uuid, 'main', 'メイン板', '', '名無しさん'
-WHERE NOT EXISTS (SELECT 1 FROM boards WHERE board_key = 'main');
-
-UPDATE threads SET board_id = '00000000-0000-0000-0000-000000000001'::uuid WHERE board_id IS NULL;
-UPDATE responses SET board_id = '00000000-0000-0000-0000-000000000001'::uuid WHERE board_id IS NULL;
-
-DELETE FROM auth_tokens WHERE expires_at < NOW() - INTERVAL '7 days';
+	INSERT INTO boards(id, board_key, board_name, local_rule, nanashi_name)
+	SELECT '00000000-0000-0000-0000-000000000001'::uuid, 'main', 'メイン板', '', '名無しさん'
+	WHERE NOT EXISTS (SELECT 1 FROM boards WHERE board_key = 'main');
+	
+	INSERT INTO threads(
+	    id,
+	    title,
+	    posted_at,
+	    updated_at,
+	    epoch_id,
+	    board_id
+	)
+	VALUES(
+	    '01953082-1ea4-7a71-8ac2-395cedbd9ecb',
+	    'ようこそ！',
+	    '2025-01-01 00:00:00',
+	    '2025-01-01 00:00:00',
+	    1735657200,
+	    '00000000-0000-0000-0000-000000000001'
+	);
+	
+	INSERT INTO responses(
+	    id,
+	    thread_id,
+	    response_number,
+	    author_name,
+	    mail,
+	    posted_at,
+	    response_content,
+	    hash_id,
+	    trip,
+	    board_id
+	)
+	VALUES(
+	    '01953082-8ae5-7df7-8446-e02b6b9189e7',
+	    '01953082-1ea4-7a71-8ac2-395cedbd9ecb',
+	    1,
+	    'KassanBBS',
+	    'dummy@example.com',
+	    '2025-01-01 00:00:00',
+	    'KassanBBS Boardへようこそ！',
+	    'welcome.',
+	    'UNhY4JhezH9g',
+	    '00000000-0000-0000-0000-000000000001'
+	);
+	
+	INSERT INTO config(
+	    board_name,
+	    local_rule,
+	    nanashi_name,
+	    max_content_length,
+	    admin_password
+	)
+	VALUES(
+	    'KassanBBS Board',
+	    'ローカルルールはここに記述',
+	    '名無しさん',
+	    1000,
+	    '$2b$10$9gxLQMYSDoBdbz/1znmieu1vjhZ2VGzKd21azF112uG45DvQNn0E6'
+	);
+	
+	INSERT INTO admin_users(id, username, password_hash, full_name, is_super_admin)
+	SELECT
+	    '00000000-0000-0000-0000-000000000001'::uuid,
+	    'admin',
+	    admin_password,
+	    'Administrator',
+	    TRUE
+	FROM config
+	LIMIT 1;
+	
+	INSERT INTO ninpocho_config(id) VALUES (1) ON CONFLICT DO NOTHING;
+	
+	INSERT INTO auto_delete_config(id) VALUES (1) ON CONFLICT DO NOTHING;
+	
+	INSERT INTO samba_config(id) VALUES (1) ON CONFLICT DO NOTHING;
+	
+	DELETE FROM auth_tokens WHERE expires_at < NOW() - INTERVAL '7 days';
 
 --migrate:down
 
