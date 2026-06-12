@@ -1,13 +1,13 @@
 <div align="center">
   <img src="./public/favicon.svg" width="100" height="80" />
-  <h1>VakKarma</h1>
+  <h1>KassanBBS</h1>
   <img src="./readme/screenshot1.png" />
   <p>2ちゃんねる風のスレッドフロート型BBS</p>
 </div>
 
 ## 概要
 
-VakKarma は、2 ちゃんねる風のスレッドフロート型 BBS です。  
+KassanBBS は、2 ちゃんねる風のスレッドフロート型 BBS です。  
 ゼロちゃんねるプラスを参考に開発されました。
 
 ### 主な特徴
@@ -75,7 +75,7 @@ Docker における本番環境では、以下のコンテナが起動します�
 | ---------- | --------------------------------- |
 | Traefik    | リバースプロキシ                  |
 | PostgreSQL | データベース                      |
-| Bun        | アプリケーションサーバ (VakKarma) |
+| Bun        | アプリケーションサーバ (KassanBBS) |
 | DBMate     | マイグレーションツール            |
 
 `.env`ファイルを編集してください。
@@ -115,7 +115,7 @@ docker compose -f docker-compose.prod.yml up -d
 # 開発環境用の環境変数
 VITE_POSTGRES_USER=postgres
 VITE_POSTGRES_PASSWORD=postgres
-VITE_POSTGRES_DB=vakkarma-1
+VITE_POSTGRES_DB=kassanbbs
 VITE_JWT_SECRET_KEY=secret
 ```
 
@@ -144,7 +144,7 @@ Vite が 80 ポートで起動します。
 
 ## 使い方
 
-VakKarma では、すべての画面がレスポンシブデザインに対応しています。
+KassanBBS では、すべての画面がレスポンシブデザインに対応しています。
 
 ### トップ画面
 

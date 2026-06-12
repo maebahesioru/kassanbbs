@@ -5,11 +5,13 @@ import { ErrorMessage } from "../components/ErrorMessage";
 
 export default createRoute(async (c) => {
   const { sql, logger } = c.var;
+  const boardId = c.get("boardId");
 
   logger.info({
     operation: "subback/GET",
     path: c.req.path,
     method: c.req.method,
+    boardId,
     message: "Rendering thread list page",
   });
 
@@ -21,7 +23,7 @@ export default createRoute(async (c) => {
   const usecaseResult = await getAllThreadsPageUsecase({
     sql,
     logger,
-  });
+  }, boardId);
 
   if (usecaseResult.isErr()) {
     logger.error({
@@ -60,9 +62,12 @@ export default createRoute(async (c) => {
           ))}
         </ul>
 
-        <div className="mt-6">
+        <div className="mt-6 flex gap-4">
           <a href="/" className="text-blue-600 hover:underline">
             掲示板に戻る
+          </a>
+          <a href="/archive" className="text-gray-600 hover:underline">
+            過去ログ倉庫
           </a>
         </div>
       </section>

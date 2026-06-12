@@ -8,7 +8,7 @@ export type WriteThreadTitle = {
   readonly val: string;
 };
 
-const titleRegex = /^[^<>]+$/;
+const titleRegex = /^[^<>\0\x00-\x08\x0B\x0C\x0E-\x1F\u202A-\u202E]+$/;
 
 export const createWriteThreadTitle = (
   value: string

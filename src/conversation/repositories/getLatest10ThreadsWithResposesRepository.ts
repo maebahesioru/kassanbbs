@@ -14,6 +14,8 @@ import { createReadResponseContent } from "../domain/read/ReadResponseContent";
 import { createReadResponseId } from "../domain/read/ReadResponseId";
 import { createReadResponseNumber } from "../domain/read/ReadResponseNumber";
 import { createReadThreadId } from "../domain/read/ReadThreadId";
+import { generateDailyId } from "../domain/read/ReadDailyId";
+import { createCapcode } from "../../cap/domain/read/ReadCapcode";
 
 import type { ValidationError } from "../../shared/types/Error";
 import type { VakContext } from "../../shared/types/VakContext";
@@ -48,6 +50,7 @@ export const getLatest10ThreadsWithResponsesRepository = async (
         response_content: string | null;
         hash_id: string | null;
         trip: string | null;
+        be_id: string | null;
       }[]
     >`
         WITH thread_max_response AS(
@@ -182,6 +185,22 @@ export const getLatest10ThreadsWithResponsesRepository = async (
         hashId,
       ] = combinedResult.value;
 
+      const dailyId = generateDailyId(
+        hashId.val,
+        response.thread_id,
+        postedAt.val
+      );
+
+      let capcode: string | undefined;
+      if (response.trip) {
+        capcode = createCapcode(
+          authorName.val._type === "some"
+            ? authorName.val.authorName
+            : authorName.val.authorName,
+          response.trip
+        ) as string;
+      }
+
       const responseResult = createReadResponse({
         responseId,
         threadId,
@@ -191,6 +210,8 @@ export const getLatest10ThreadsWithResponsesRepository = async (
         postedAt,
         responseContent,
         hashId,
+        dailyId,
+        capcode,
       });
 
       if (responseResult.isErr()) {

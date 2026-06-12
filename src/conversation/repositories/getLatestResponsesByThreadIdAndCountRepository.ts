@@ -19,6 +19,12 @@ import {
   createReadThreadWithResponses,
   type ReadThreadWithResponses,
 } from "../domain/read/ReadThreadWithResponses";
+import { generateDailyId } from "../domain/read/ReadDailyId";
+import { createCapcode } from "../../cap/domain/read/ReadCapcode";
+import {
+  createThreadAttr,
+  type ThreadAttr,
+} from "../domain/read/ReadThreadAttr";
 
 import type { ValidationError } from "../../shared/types/Error";
 import type { VakContext } from "../../shared/types/VakContext";
@@ -57,24 +63,28 @@ export const getLatestResponsesByThreadIdAndCountRepository = async (
         response_content: string | null;
         hash_id: string | null;
         trip: string | null;
+        be_id: string | null;
         title: string | null;
         total_count: number | null;
+        attrs: ThreadAttr | null;
       }[]
     >`
     WITH resp_count AS (
       SELECT thread_id, COUNT(*)::int AS total_count
       FROM responses
       WHERE thread_id = ${threadId.val}::uuid
+        AND is_deleted = FALSE
       GROUP BY thread_id
     ),
     unioned AS (
       (
         SELECT
           r.id, r.thread_id, r.response_number, r.author_name, r.mail,
-          r.posted_at, r.response_content, r.hash_id, r.trip, t.title
+          r.posted_at, r.response_content, r.hash_id, r.trip, r.be_id, t.title, t.attrs
         FROM responses AS r
         JOIN threads AS t ON r.thread_id = t.id
         WHERE r.thread_id = ${threadId.val}::uuid
+          AND r.is_deleted = FALSE
         ORDER BY r.response_number DESC
         LIMIT ${count.val}
       )
@@ -82,11 +92,12 @@ export const getLatestResponsesByThreadIdAndCountRepository = async (
       (
         SELECT
           r.id, r.thread_id, r.response_number, r.author_name, r.mail,
-          r.posted_at, r.response_content, r.hash_id, r.trip, t.title
+          r.posted_at, r.response_content, r.hash_id, r.trip, r.be_id, t.title, t.attrs
         FROM responses AS r
         JOIN threads AS t ON r.thread_id = t.id
         WHERE r.thread_id = ${threadId.val}::uuid
           AND r.response_number = 1
+          AND r.is_deleted = FALSE
       )
     )
     SELECT
@@ -105,8 +116,10 @@ export const getLatestResponsesByThreadIdAndCountRepository = async (
       response_content: string;
       hash_id: string;
       trip: string | null;
+      be_id: string | null;
       title: string;
       total_count: number | null;
+      attrs: ThreadAttr;
     }[];
 
     if (!result || result.length === 0) {
@@ -143,7 +156,7 @@ export const getLatestResponsesByThreadIdAndCountRepository = async (
       const combinedResult = Result.combine([
         createReadResponseId(response.id),
         createReadResponseNumber(response.response_number),
-        createReadAuthorName(response.author_name, response.trip),
+        createReadAuthorName(response.author_name, response.trip, response.be_id),
         createReadMail(response.mail),
         createReadPostedAt(response.posted_at),
         createReadResponseContent(response.response_content),
@@ -171,6 +184,22 @@ export const getLatestResponsesByThreadIdAndCountRepository = async (
         hashId,
       ] = combinedResult.value;
 
+      const dailyId = generateDailyId(
+        hashId.val,
+        response.thread_id,
+        postedAt.val
+      );
+
+      let capcode: string | undefined;
+      if (response.trip) {
+        capcode = createCapcode(
+          authorName.val._type === "some"
+            ? authorName.val.authorName
+            : authorName.val.authorName,
+          response.trip
+        ) as string;
+      }
+
       const responseResult = createReadResponse({
         responseId,
         threadId: threadIdResult.value,
@@ -180,6 +209,8 @@ export const getLatestResponsesByThreadIdAndCountRepository = async (
         postedAt,
         responseContent,
         hashId,
+        dailyId,
+        capcode,
       });
 
       if (responseResult.isErr()) {
@@ -226,11 +257,25 @@ export const getLatestResponsesByThreadIdAndCountRepository = async (
     }
     const totalCount = firstResponse.total_count;
 
+    const attrsResult = createThreadAttr(
+      (firstResponse.attrs as Record<string, unknown>) ?? {}
+    );
+    if (attrsResult.isErr()) {
+      logger.error({
+        operation: "getLatestResponseByThreadId",
+        threadId: threadId.val,
+        error: attrsResult.error,
+        message: "Failed to parse thread attrs",
+      });
+      return err(attrsResult.error);
+    }
+
     const threadWithResponsesResult = createReadThreadWithResponses(
       threadIdResult.value,
       threadTitle,
       totalCount,
-      responses
+      responses,
+      attrsResult.value
     );
 
     if (threadWithResponsesResult.isErr()) {

@@ -13,12 +13,14 @@ import type { Result } from "neverthrow";
 // スレッドを作成するリポジトリ
 export const createThreadRepository = async (
   { sql, logger }: VakContext,
-  thread: WriteThread
+  thread: WriteThread,
+  boardId: string
 ): Promise<Result<ReadThreadId, DatabaseError>> => {
   logger.debug({
     operation: "createThread",
     threadId: thread.id.val,
     threadTitle: thread.title.val,
+    boardId,
     message: "Creating new thread in database",
   });
 
@@ -29,14 +31,18 @@ export const createThreadRepository = async (
               title,
               posted_at,
               updated_at,
-              epoch_id
+              epoch_id,
+              attrs,
+              board_id
           )
           VALUES(
               ${thread.id.val}::uuid,
               ${thread.title.val},
               ${thread.postedAt.val},
               ${thread.updatedAt.val},
-              ${thread.epochId.val}
+              ${thread.epochId.val},
+              '{}'::jsonb,
+              ${boardId}::uuid
           ) RETURNING id
       `;
 

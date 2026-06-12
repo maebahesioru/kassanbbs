@@ -3,18 +3,27 @@ import { createRoute } from "honox/factory";
 import { formatReadAuthorName } from "../../src/conversation/domain/read/ReadAuthorName";
 import { isSage } from "../../src/conversation/domain/write/WriteMail";
 import { getTopPageUsecase } from "../../src/conversation/usecases/getTopPageUsecase";
+import { getNormalConfigUsecase } from "../../src/config/usecases/getNormalConfigUsecase";
 import { formatDate } from "../../src/shared/utils/formatDate";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { ResponseContentComponent } from "../components/ResponseContent";
 import FormEnhance from "../islands/FormEnhance";
+import CaptchaWidget from "../islands/CaptchaWidget";
+import BrowserFingerprint from "../islands/BrowserFingerprint";
+import ImageOverlay from "../islands/ImageOverlay";
+import TimeAgo from "../islands/TimeAgo";
+import ClearFileButton from "../islands/ClearFileButton";
+import { getUserCookieData } from "../utils/userCookieManager";
 
 export default createRoute(async (c) => {
   const { sql, logger } = c.var;
+  const boardId = c.get("boardId");
 
   logger.info({
     operation: "index/GET",
     path: c.req.path,
     method: c.req.method,
+    boardId,
     message: "Rendering top page",
   });
 
@@ -26,7 +35,7 @@ export default createRoute(async (c) => {
   const usecaseResult = await getTopPageUsecase({
     sql,
     logger,
-  });
+  }, boardId);
 
   if (usecaseResult.isErr()) {
     logger.error({
@@ -37,7 +46,16 @@ export default createRoute(async (c) => {
     return c.render(<ErrorMessage error={usecaseResult.error} />);
   }
 
+  const configResult = await getNormalConfigUsecase({ sql, logger });
+  const captchaProvider = configResult.isOk() ? configResult.value.captchaProvider : "none";
+  const captchaEnabled = captchaProvider && captchaProvider !== "none";
+  const captchaSiteKey = configResult.isOk() ? configResult.value.captchaSiteKey : "";
+  const linkColor = configResult.isOk() ? configResult.value.linkColor || "#7c3aed" : "#7c3aed";
+  const nameColor = configResult.isOk() ? configResult.value.nameColor || "#374151" : "#374151";
+
   const { threadTop30, responsesTop10 } = usecaseResult.value;
+
+  const userCookie = getUserCookieData(c);
 
   logger.debug({
     operation: "index/GET",
@@ -103,15 +121,27 @@ export default createRoute(async (c) => {
                           className={`text-gray-700 ${
                             isSage(resp.mail) ? "text-violet-600" : ""
                           }`}
+                          style={{ color: resp.authorName.val.color || nameColor }}
                         >
-                          名前: {formatReadAuthorName(resp.authorName)}
+                          名前: {formatReadAuthorName(resp.authorName, resp.capcode)}
                         </span>
-                        <span className="text-gray-500 text-sm">
+                        {resp.isOwner && (
+                          <span className="text-red-600 font-bold">(主)</span>
+                        )}
+                        {resp.isSubOwner && (
+                          <span className="text-orange-600 font-bold">(副)</span>
+                        )}
+                        <span className="text-gray-500 text-sm" data-mtime={Math.floor(resp.postedAt.val.getTime() / 1000)}>
                           {formatDate(resp.postedAt.val, {
                             acceptLanguage:
                               c.req.header("Accept-Language") ?? undefined,
                           })}
                         </span>
+                        {resp.dailyId && (
+                          <span className="text-gray-500 text-sm">
+                            ID: {resp.dailyId}
+                          </span>
+                        )}
                         <span className="text-gray-500 text-sm">
                           ID: {resp.hashId.val}
                         </span>
@@ -120,6 +150,18 @@ export default createRoute(async (c) => {
                         <ResponseContentComponent
                           threadId={resp.threadId}
                           responseContent={resp.responseContent}
+                          mail={resp.mail}
+                          authorName={resp.authorName}
+                          referrerCushion={
+                            configResult.isOk()
+                              ? configResult.value.referrerCushion || undefined
+                              : undefined
+                          }
+                          dailyId={resp.dailyId}
+                          isOwner={resp.isOwner}
+                          isSubOwner={resp.isSubOwner}
+                          linkColor={linkColor}
+                          nameColor={resp.authorName.val.color || nameColor}
                         />
                       </div>
                     </li>
@@ -138,14 +180,17 @@ export default createRoute(async (c) => {
                         <input
                           type="text"
                           name="name"
-                          className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                          value={userCookie.name}
+                          className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                       </label>
                       <label className="block text-gray-700 text-sm font-bold mb-2 md:w-1/2">
                         メールアドレス:
-                        <input
-                          name="mail"
-                          className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                          <input
+                            type="email"
+                            name="mail"
+                            value={userCookie.mail}
+                          className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                       </label>
                     </div>
@@ -155,18 +200,24 @@ export default createRoute(async (c) => {
                         <textarea
                           name="content"
                           required
-                          className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline h-32"
+                          className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 h-32"
                         ></textarea>
                       </label>
                     </div>
                     <button
                       type="submit"
-                      className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                      className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
                     >
                       書き込む
                     </button>
+                    {captchaEnabled && (
+                      <>
+                        <CaptchaWidget siteKey={captchaSiteKey} provider={captchaProvider} />
+                      </>
+                    )}
                     {/* Add the FormEnhance island */}
                     <FormEnhance />
+                    <BrowserFingerprint />
                   </form>
                   <div className="flex gap-4 mt-2">
                     <a
@@ -207,7 +258,7 @@ export default createRoute(async (c) => {
                   type="text"
                   name="title"
                   required
-                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </label>
             </div>
@@ -217,14 +268,17 @@ export default createRoute(async (c) => {
                 <input
                   type="text"
                   name="name"
-                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  value={userCookie.name}
+                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </label>
               <label className="block text-gray-700 text-sm font-bold mb-2 md:w-1/2">
                 メールアドレス:
                 <input
+                  type="email"
                   name="mail"
-                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  value={userCookie.mail}
+                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </label>
             </div>
@@ -234,18 +288,24 @@ export default createRoute(async (c) => {
                 <textarea
                   name="content"
                   required
-                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline h-32"
+                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 h-32"
                 ></textarea>
               </label>
             </div>
             <button
               type="submit"
-              className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               新規スレッド作成
             </button>
+            {captchaEnabled && (
+              <>
+                <CaptchaWidget siteKey={captchaSiteKey} provider={captchaProvider} />
+              </>
+            )}
             {/* Add the FormEnhance island */}
             <FormEnhance />
+            <BrowserFingerprint />
           </form>
         </section>
       </main>
@@ -264,6 +324,9 @@ export default createRoute(async (c) => {
           ＋
         </a>
       </div>
+      <ImageOverlay />
+      <TimeAgo />
+      <ClearFileButton />
     </>
   );
 });

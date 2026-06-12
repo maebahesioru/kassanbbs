@@ -1,0 +1,11 @@
+--migrate:up
+ALTER TABLE config
+    ADD COLUMN IF NOT EXISTS max_lines INTEGER NOT NULL DEFAULT 30,
+    ADD COLUMN IF NOT EXISTS max_line_width INTEGER NOT NULL DEFAULT 80,
+    ADD COLUMN IF NOT EXISTS max_anchors INTEGER NOT NULL DEFAULT 10;
+
+--migrate:down
+ALTER TABLE config
+    DROP COLUMN IF EXISTS max_anchors,
+    DROP COLUMN IF EXISTS max_line_width,
+    DROP COLUMN IF EXISTS max_lines;

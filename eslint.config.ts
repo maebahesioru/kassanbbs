@@ -79,9 +79,6 @@ export default tseslint.config(
       ],
       // 不要なimportの禁止
       // "import/no-unresolved": "error",
-      "import/named": "error",
-      "import/namespace": "error",
-      "import/default": "error",
 
       // eslint-plugin-unused-imports の設定
       "no-unused-vars": "off", // 既存の no-unused-vars をオフにする

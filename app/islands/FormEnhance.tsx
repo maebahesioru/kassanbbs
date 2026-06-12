@@ -2,6 +2,26 @@ import { useEffect, useRef } from "hono/jsx"; // Import useRef
 import { Notyf } from "notyf"; // Import Notyf
 import "notyf/notyf.min.css"; // Import Notyf CSS
 
+const AUTH_TOKEN_COOKIE_NAME = "vak_auth_token";
+
+const getAuthTokenFromCookie = (): string | null => {
+  const match = document.cookie.match(
+    new RegExp(`(?:^|; )${AUTH_TOKEN_COOKIE_NAME}=([^;]*)`)
+  );
+  if (match) {
+    try {
+      return atob(decodeURIComponent(match[1]));
+    } catch {
+      return decodeURIComponent(match[1]);
+    }
+  }
+  return null;
+};
+
+const clearAuthTokenCookie = (): void => {
+  document.cookie = `${AUTH_TOKEN_COOKIE_NAME}=; path=/; max-age=0`;
+};
+
 export default function FormEnhance() {
   const placeholderRef = useRef<HTMLSpanElement>(null); // Create a ref for the span
 
@@ -46,6 +66,23 @@ export default function FormEnhance() {
       return;
     }
     console.log("FormEnhance attached to form:", form); // Log the form it attached to
+
+    // Check for auth token cookie and auto-fill
+    const authToken = getAuthTokenFromCookie();
+    if (authToken) {
+      const mailInput = form.querySelector(
+        'input[name="mail"]'
+      ) as HTMLInputElement | null;
+      if (mailInput) {
+        const currentMail = mailInput.value.trim();
+        if (!currentMail.includes("!auth:")) {
+          const authPrefix = `!auth:${authToken}`;
+          mailInput.value = currentMail ? `${currentMail} ${authPrefix}` : authPrefix;
+        }
+      }
+      clearAuthTokenCookie();
+      notyf.success(`認証トークン: ${authToken.substring(0, 4)}... (次の投稿で自動適用されます)`);
+    }
 
     // Input validation and button state handling
     const handleSubmit = (e: SubmitEvent) => {

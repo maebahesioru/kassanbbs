@@ -19,16 +19,20 @@ import {
   createReadThreadWithResponses,
   type ReadThreadWithResponses,
 } from "../domain/read/ReadThreadWithResponses";
+import { generateDailyId } from "../domain/read/ReadDailyId";
+import { createCapcode } from "../../cap/domain/read/ReadCapcode";
+import {
+  createThreadAttr,
+  type ThreadAttr,
+} from "../domain/read/ReadThreadAttr";
 
 import type { ValidationError } from "../../shared/types/Error";
 import type { VakContext } from "../../shared/types/VakContext";
 import type { WriteThreadId } from "../domain/write/WriteThreadId";
 
-// 指定されたスレッドのすべてのレスポンスを取得するだけのリポジトリ
-// 便宜上、スレッドタイトルも取得する
 export const getAllResponsesByThreadIdRepository = async (
   { sql, logger }: VakContext,
-  { threadId }: { threadId: WriteThreadId }
+  { threadId, isAdmin }: { threadId: WriteThreadId; isAdmin?: boolean }
 ): Promise<
   Result<
     ReadThreadWithResponses,
@@ -53,14 +57,18 @@ export const getAllResponsesByThreadIdRepository = async (
         response_content: string;
         hash_id: string;
         trip: string | null;
+        be_id: string | null;
         title: string;
         total_count: number | null;
+        attrs: ThreadAttr;
+        wattyoi: string | null;
       }[]
     >`
       WITH resp_count AS (
         SELECT thread_id, COUNT(*)::int AS total_count
         FROM responses
         WHERE thread_id = ${threadId.val}::uuid
+          AND is_deleted = FALSE
         GROUP BY thread_id
       )
       SELECT
@@ -73,14 +81,19 @@ export const getAllResponsesByThreadIdRepository = async (
         r.response_content,
         r.hash_id,
         r.trip,
+        r.be_id,
+        r.wattyoi,
         t.title,
-        rc.total_count
+        rc.total_count,
+        t.attrs
       FROM responses AS r
       JOIN threads AS t
         ON r.thread_id = t.id
       JOIN resp_count AS rc
         ON rc.thread_id = r.thread_id
       WHERE r.thread_id = ${threadId.val}::uuid
+        AND r.is_deleted = FALSE
+        ${isAdmin ? sql`` : sql`AND t.is_stopped = FALSE AND t.is_pooled = FALSE`}
       ORDER BY r.response_number
     `;
 
@@ -100,8 +113,6 @@ export const getAllResponsesByThreadIdRepository = async (
       message: "Successfully retrieved responses from database",
     });
 
-    // 詰め替え部分
-    // すべての投稿でスレッドIDは共通なので、最初のレスポンスから取得
     const threadIdResult = createReadThreadId(result[0].thread_id);
     if (threadIdResult.isErr()) {
       logger.error({
@@ -113,12 +124,23 @@ export const getAllResponsesByThreadIdRepository = async (
       return err(threadIdResult.error);
     }
 
+    const firstResponse = result.find((r) => r.response_number === 1);
+    const ownerHashId = firstResponse?.hash_id ?? null;
+
+    const attrsResult = createThreadAttr(
+      (result[0].attrs as Record<string, unknown>) ?? {}
+    );
+    const subOwnerHashId = attrsResult.isOk() ? attrsResult.value.subOwnerHashId : undefined;
+    const capsMap = attrsResult.isOk() ? attrsResult.value.caps : undefined;
+
     const responses: ReadResponse[] = [];
     for (const response of result) {
+      const capDisplayName = capsMap?.[response.hash_id];
+
       const combinedResult = Result.combine([
         createReadResponseId(response.id),
         createReadResponseNumber(response.response_number),
-        createReadAuthorName(response.author_name, response.trip),
+        createReadAuthorName(response.author_name, response.trip, response.be_id, !!capDisplayName, capDisplayName),
         createReadMail(response.mail),
         createReadPostedAt(response.posted_at),
         createReadResponseContent(response.response_content),
@@ -146,6 +168,25 @@ export const getAllResponsesByThreadIdRepository = async (
         hashId,
       ] = combinedResult.value;
 
+      const dailyId = generateDailyId(
+        hashId.val,
+        response.thread_id,
+        postedAt.val
+      );
+
+      let capcode: string | undefined;
+      if (response.trip) {
+        capcode = createCapcode(
+          authorName.val._type === "some"
+            ? authorName.val.authorName
+            : authorName.val.authorName,
+          response.trip
+        ) as string;
+      }
+
+      const isOwner = ownerHashId !== null && response.hash_id === ownerHashId;
+      const isSubOwner = subOwnerHashId !== undefined && response.hash_id === subOwnerHashId;
+
       const responseResult = createReadResponse({
         responseId,
         threadId: threadIdResult.value,
@@ -155,6 +196,11 @@ export const getAllResponsesByThreadIdRepository = async (
         postedAt,
         responseContent,
         hashId,
+        dailyId,
+        capcode,
+        isOwner,
+        isSubOwner,
+        wattyoi: response.wattyoi ?? undefined,
       });
 
       if (responseResult.isErr()) {
@@ -171,21 +217,20 @@ export const getAllResponsesByThreadIdRepository = async (
       responses.push(responseResult.value);
     }
 
-    // スレッドタイトルの取得とバリデーション
-    const firstResponse = result[0];
-    const threadTitleResult = createReadThreadTitle(firstResponse.title);
+    const firstRow = result[0];
+    const threadTitleResult = createReadThreadTitle(firstRow.title);
     if (threadTitleResult.isErr()) {
       logger.error({
         operation: "getAllResponsesByThreadId",
         threadId: threadId.val,
-        threadTitle: firstResponse.title,
+        threadTitle: firstRow.title,
         error: threadTitleResult.error,
         message: "Failed to create thread title from database result",
       });
       return err(threadTitleResult.error);
     }
 
-    if (!result[0].total_count) {
+    if (!firstRow.total_count) {
       logger.error({
         operation: "getAllResponsesByThreadId",
         threadId: threadId.val,
@@ -195,12 +240,24 @@ export const getAllResponsesByThreadIdRepository = async (
         new DataNotFoundError("スレッドのレスポンス件数が取得できませんでした")
       );
     }
-    const totalCount = result[0].total_count; // from resp_count
+    const totalCount = firstRow.total_count;
+
+    if (attrsResult.isErr()) {
+      logger.error({
+        operation: "getAllResponsesByThreadId",
+        threadId: threadId.val,
+        error: attrsResult.error,
+        message: "Failed to parse thread attrs",
+      });
+      return err(attrsResult.error);
+    }
+
     const threadWithResponsesResult = createReadThreadWithResponses(
       threadIdResult.value,
       threadTitleResult.value,
       totalCount,
-      responses
+      responses,
+      attrsResult.value
     );
 
     if (threadWithResponsesResult.isErr()) {

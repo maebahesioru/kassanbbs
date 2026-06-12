@@ -1,9 +1,11 @@
 import { ok } from "neverthrow";
 
+import type { Nominal } from "../../../shared/types/Nominal";
 import type { ReadPostedAt } from "./ReadPostedAt";
 import type { ReadThreadEpochId } from "./ReadThreadEpochId";
 import type { ReadThreadId } from "./ReadThreadId";
 import type { ReadThreadTitle } from "./ReadThreadTitle";
+import type { ThreadAttr } from "./ReadThreadAttr";
 import type { Result } from "neverthrow";
 
 export type ReadThreadWithEpochId = {
@@ -12,9 +14,12 @@ export type ReadThreadWithEpochId = {
   readonly title: ReadThreadTitle;
   readonly postedAt: ReadPostedAt;
   readonly updatedAt: ReadPostedAt;
-  // ここはスレッドのレス数なので妥協
   readonly countResponse: number;
   readonly threadEpochId: ReadThreadEpochId;
+  readonly isStopped: Nominal<boolean, "ReadThreadIsStopped">;
+  readonly isPooled: Nominal<boolean, "ReadThreadIsPooled">;
+  readonly maxResponses: Nominal<number, "ReadThreadMaxResponses">;
+  readonly attrs: Nominal<ThreadAttr, "ReadThreadAttr">;
 };
 
 export const createReadThreadWithEpochId = ({
@@ -24,6 +29,10 @@ export const createReadThreadWithEpochId = ({
   updatedAt,
   countResponse,
   threadEpochId,
+  isStopped,
+  isPooled,
+  maxResponses,
+  attrs,
 }: {
   id: ReadThreadId;
   title: ReadThreadTitle;
@@ -31,6 +40,10 @@ export const createReadThreadWithEpochId = ({
   updatedAt: ReadPostedAt;
   countResponse: number;
   threadEpochId: ReadThreadEpochId;
+  isStopped: boolean;
+  isPooled: boolean;
+  maxResponses: number;
+  attrs: ThreadAttr;
 }): Result<ReadThreadWithEpochId, Error> => {
   return ok({
     _type: "ReadThreadWithEpochId",
@@ -40,5 +53,9 @@ export const createReadThreadWithEpochId = ({
     updatedAt,
     countResponse,
     threadEpochId,
+    isStopped: isStopped as Nominal<boolean, "ReadThreadIsStopped">,
+    isPooled: isPooled as Nominal<boolean, "ReadThreadIsPooled">,
+    maxResponses: maxResponses as Nominal<number, "ReadThreadMaxResponses">,
+    attrs: attrs as Nominal<ThreadAttr, "ReadThreadAttr">,
   });
 };

@@ -14,6 +14,28 @@ export type WriteMail = {
 const regexMail =
   /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
+const commandValues = [
+  "sage",
+  "age",
+  "!markdown",
+  "!force774",
+  "!ninja",
+  "!othello",
+  "!down",
+  "down",
+  "!bottom",
+  "bottom",
+];
+
+const isCommandValue = (value: string): boolean => {
+  const lower = value.toLowerCase().trim();
+  if (commandValues.includes(lower)) return true;
+  if (lower.startsWith("font")) return true;
+  if (/^!?up:\d+$/.test(lower)) return true;
+  if (/^!?down:\d+$/.test(lower)) return true;
+  return false;
+};
+
 export const createWriteMail = (
   value: string | null
 ): Result<WriteMail, ValidationError> => {
@@ -26,7 +48,7 @@ export const createWriteMail = (
   // 簡単なメールアドレス形式チェック (厳密なものではない)
   if (
     value !== "" &&
-    value.toLowerCase() !== "sage" &&
+    !isCommandValue(value) &&
     !regexMail.test(value)
   ) {
     return err(new ValidationError("不正なメールアドレス形式です"));

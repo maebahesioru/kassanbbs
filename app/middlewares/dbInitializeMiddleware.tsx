@@ -53,7 +53,7 @@ export interface DbMiddlewareOptions<ContextKey extends string = "db"> {
 
 // --- グローバル変数 (非Workers環境でのインスタンス保持用) ---
 // この変数は、Node.jsなどの環境でのみ、初期化後にインスタンスを保持するために使用されます。
-let sharedDbClientInstance: DbClient | null = null;
+export let sharedDbClientInstance: DbClient | null = null;
 // 非Workers環境での初期化重複を防ぐための簡易的なフラグ（ロック）
 let isInitializingSharedDb = false;
 
@@ -65,7 +65,7 @@ let isInitializingSharedDb = false;
  * @param options 設定オプションと環境情報
  * @returns 初期化されたクライアントインスタンス、または失敗時 null
  */
-const initializeDbClientInternal = (
+const initializeDbClientInternal = async (
   c: Context,
   options: {
     envKey: string;
@@ -73,65 +73,63 @@ const initializeDbClientInternal = (
     contextKey: string;
     isCloudflareWorkers: boolean; // 現在の環境がWorkersかどうか
   }
-): DbClient | null => {
+): Promise<DbClient | null> => {
   const { envKey, postgresOptions, contextKey, isCloudflareWorkers } = options;
-  try {
-    // 環境変数を取得 (Honoのアダプタを使用)
-    const databaseUrl =
-      // 本番環境の場合
-      env<{ [key: string]: string }>(c)[envKey] ||
-      // 開発環境の場合
-      // prettier-ignore
-      `postgresql://${import.meta.env.VITE_POSTGRES_USER}:${import.meta.env.VITE_POSTGRES_PASSWORD}@localhost:5432/${import.meta.env.VITE_POSTGRES_DB}?sslmode=disable`;
+  // 環境変数を取得 (Honoのアダプタを使用)
+  const databaseUrl =
+    // 本番環境の場合
+    env<{ [key: string]: string }>(c)[envKey] ||
+    // 開発環境の場合
+    // prettier-ignore
+    `postgresql://${import.meta.env.VITE_POSTGRES_USER}:${import.meta.env.VITE_POSTGRES_PASSWORD}@localhost:5432/${import.meta.env.VITE_POSTGRES_DB}?sslmode=disable`;
 
-    if (!databaseUrl) {
-      // 接続文字列が見つからない場合はエラーログを出力し、nullを返す
-      console.error(
-        `[${contextKey}] Error: Database connection string environment variable '${envKey}' not found.`
-      );
-      return null;
-    }
-
-    // postgres.js に渡す最終的なオプションを準備
-    const finalOptions: postgres.Options<
-      Record<string, postgres.PostgresType>
-    > = {
-      // 提供されたオプションをベースにする
-      ...postgresOptions,
-      // 環境に応じた調整 (例: Workersではデフォルトの最大接続数を調整)
-      // 注意: Hyperdriveを使用する場合、maxはHyperdrive側で管理されるため、ここでの指定の影響は限定的です。
-      //       Hyperdriveを使わない直接接続の場合、Workersでは少ない値(例: 1)が推奨されることがあります。
-      max: isCloudflareWorkers
-        ? postgresOptions?.max ?? 1
-        : postgresOptions?.max, // Workers環境ではデフォルト1、それ以外は指定値 or デフォルト
-      // --- その他の推奨オプション例 ---
-      // idle_timeout: postgresOptions?.idle_timeout ?? 20, // アイドル接続のタイムアウト(秒)
-      // connect_timeout: postgresOptions?.connect_timeout ?? 10, // 接続試行のタイムアウト(秒)
-      // transform: { // 例: snake_case -> camelCase 変換
-      //   column: postgres.toCamel,
-      //   ...postgresOptions.transform,
-      // },
-      // ---------------------------------
-    };
-
-    // postgres クライアントを初期化
-    const client = postgres(databaseUrl, finalOptions);
-
-    // 成功ログ（環境と戦略を明記）
-    console.log(
-      `[${contextKey}] Database client initialized successfully. (Environment: ${
-        isCloudflareWorkers ? "Cloudflare Workers" : "Other"
-      }, Strategy: ${isCloudflareWorkers ? "Per-request" : "Shared Instance"})`
-    );
-    return client;
-  } catch (error) {
-    // エラーログを出力し、nullを返す
+  if (!databaseUrl) {
+    // 接続文字列が見つからない場合はエラーログを出力し、nullを返す
     console.error(
-      `[${contextKey}] Failed to initialize database client:`,
-      error
+      `[${contextKey}] Error: Database connection string environment variable '${envKey}' not found.`
     );
     return null;
   }
+
+  // postgres.js に渡す最終的なオプションを準備
+  const finalOptions: postgres.Options<
+    Record<string, postgres.PostgresType>
+  > = {
+    // 提供されたオプションをベースにする
+    ...postgresOptions,
+    // 環境に応じた調整 (例: Workersではデフォルトの最大接続数を調整)
+    max: isCloudflareWorkers
+      ? postgresOptions?.max ?? 1
+      : postgresOptions?.max,
+  };
+
+  // postgres クライアントを初期化 (リトライロジック付き)
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      const client = postgres(databaseUrl, finalOptions);
+      console.log(
+        `[${contextKey}] Database client initialized successfully. (Environment: ${
+          isCloudflareWorkers ? "Cloudflare Workers" : "Other"
+        }, Strategy: ${isCloudflareWorkers ? "Per-request" : "Shared Instance"}, Attempt: ${attempt})`
+      );
+      return client;
+    } catch (error) {
+      if (attempt === 5) {
+        console.error(
+          `[${contextKey}] Failed to initialize database client after 5 attempts:`,
+          error
+        );
+        return null;
+      }
+      const delay = Math.min(1000 * Math.pow(2, attempt), 10000);
+      console.warn(
+        `[${contextKey}] Database client initialization attempt ${attempt} failed, retrying in ${delay}ms:`,
+        error
+      );
+      await new Promise(r => setTimeout(r, delay));
+    }
+  }
+  return null;
 };
 
 /**
@@ -166,7 +164,7 @@ export const dbClientMiddlewareConditional = <ContextKey extends string = "db">(
     if (isCloudflareWorkers) {
       // --- Cloudflare Workers環境: 毎回新しいインスタンスを初期化 ---
       // console.log(`[${contextKey}] Initializing DB client for Worker request...`);
-      clientToUse = initializeDbClientInternal(c, {
+      clientToUse = await initializeDbClientInternal(c, {
         envKey,
         postgresOptions,
         contextKey,
@@ -185,7 +183,7 @@ export const dbClientMiddlewareConditional = <ContextKey extends string = "db">(
               `[${contextKey}] Initializing shared database client (non-worker)...`
             );
             // グローバル変数に初期化結果を格納
-            sharedDbClientInstance = initializeDbClientInternal(c, {
+            sharedDbClientInstance = await initializeDbClientInternal(c, {
               envKey,
               postgresOptions,
               contextKey,

@@ -7,6 +7,10 @@ import { createReadThreadEpochId } from "../domain/read/ReadThreadEpochId";
 import { createReadThreadId } from "../domain/read/ReadThreadId";
 import { createReadThreadTitle } from "../domain/read/ReadThreadTitle";
 import { createReadThreadWithEpochId } from "../domain/read/ReadThreadWithEpochId";
+import {
+  createThreadAttr,
+  type ThreadAttr,
+} from "../domain/read/ReadThreadAttr";
 
 import type { ValidationError } from "../../shared/types/Error";
 import type { VakContext } from "../../shared/types/VakContext";
@@ -36,6 +40,10 @@ export const getAllThreadsWithEpochIdRepository = async ({
         updated_at: Date;
         epoch_id: string;
         response_count: number;
+        is_stopped: boolean;
+        is_pooled: boolean;
+        max_responses: number;
+        attrs: ThreadAttr;
       }[]
     >`
           SELECT
@@ -44,7 +52,11 @@ export const getAllThreadsWithEpochIdRepository = async ({
               t.posted_at,
               t.updated_at,
               t.epoch_id,
-              COUNT(r.id)::int as response_count
+              COUNT(r.id)::int as response_count,
+              t.is_stopped,
+              t.is_pooled,
+              t.max_responses,
+              t.attrs
           FROM
               threads as t
               LEFT JOIN
@@ -52,8 +64,13 @@ export const getAllThreadsWithEpochIdRepository = async ({
               ON  t.id = r.thread_id
           GROUP BY
               t.id,
-              t.title
+              t.title,
+              t.is_stopped,
+              t.is_pooled,
+              t.max_responses,
+              t.attrs
           ORDER BY
+              (t.attrs->>'sticky')::boolean DESC,
               t.updated_at DESC
       `;
 
@@ -93,6 +110,19 @@ export const getAllThreadsWithEpochIdRepository = async ({
       const [threadId, title, postedAt, updatedAt, threadEpochId] =
         combinedResult.value;
 
+      const attrsResult = createThreadAttr(
+        (thread.attrs as Record<string, unknown>) ?? {}
+      );
+      if (attrsResult.isErr()) {
+        logger.error({
+          operation: "getAllThreadsWithEpochId",
+          error: attrsResult.error,
+          threadId: thread.id,
+          message: "Failed to parse thread attrs",
+        });
+        return err(attrsResult.error);
+      }
+
       const threadWithEpochIdResult = createReadThreadWithEpochId({
         id: threadId,
         title,
@@ -100,6 +130,10 @@ export const getAllThreadsWithEpochIdRepository = async ({
         updatedAt,
         countResponse: thread.response_count,
         threadEpochId,
+        isStopped: thread.is_stopped,
+        isPooled: thread.is_pooled,
+        maxResponses: thread.max_responses,
+        attrs: attrsResult.value,
       });
       if (threadWithEpochIdResult.isErr()) {
         logger.error({

@@ -10,7 +10,7 @@ export default function ErrorRedirect() {
         // Fallback if there's no history (e.g., opened in new tab)
         window.location.href = "/"; // Redirect to homepage or a safe default
       }
-    }, 2000); // 5 seconds
+    }, 2000); // 2 seconds
 
     // Cleanup function to clear the timeout if the component unmounts
     return () => clearTimeout(timer);

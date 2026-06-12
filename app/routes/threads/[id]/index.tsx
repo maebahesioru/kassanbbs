@@ -3,10 +3,16 @@ import { createRoute } from "honox/factory";
 import { formatReadAuthorName } from "../../../../src/conversation/domain/read/ReadAuthorName";
 import { isSage } from "../../../../src/conversation/domain/write/WriteMail";
 import { getAllResponsesByThreadIdUsecase } from "../../../../src/conversation/usecases/getAllResponsesByThreadIdUsecase";
+import { getNormalConfigUsecase } from "../../../../src/config/usecases/getNormalConfigUsecase";
 import { formatDate } from "../../../../src/shared/utils/formatDate";
 import { ErrorMessage } from "../../../components/ErrorMessage";
 import { ResponseContentComponent } from "../../../components/ResponseContent";
 import FormEnhance from "../../../islands/FormEnhance";
+import CaptchaWidget from "../../../islands/CaptchaWidget";
+import ImageOverlay from "../../../islands/ImageOverlay";
+import TimeAgo from "../../../islands/TimeAgo";
+import ClearFileButton from "../../../islands/ClearFileButton";
+import { getUserCookieData } from "../../../utils/userCookieManager";
 
 export default createRoute(async (c) => {
   const { sql, logger } = c.var;
@@ -29,7 +35,16 @@ export default createRoute(async (c) => {
     );
   }
 
-  const id = c.req.param("id");
+  const id = c.req.param("id"  );
+
+  const configResult = await getNormalConfigUsecase({ sql, logger });
+  const captchaProvider = configResult.isOk() ? configResult.value.captchaProvider : "none";
+  const captchaEnabled = captchaProvider && captchaProvider !== "none";
+  const captchaSiteKey = configResult.isOk() ? configResult.value.captchaSiteKey : "";
+  const linkColor = configResult.isOk() ? configResult.value.linkColor || "#7c3aed" : "#7c3aed";
+  const nameColor = configResult.isOk() ? configResult.value.nameColor || "#374151" : "#374151";
+
+  const userCookie = getUserCookieData(c);
 
   logger.debug({
     operation: "threads/[id]/GET",
@@ -58,6 +73,8 @@ export default createRoute(async (c) => {
       allResponsesResult.value.responses.length - 1
     ].responseNumber.val;
 
+  const threadAttrs = allResponsesResult.value.thread.attrs;
+
   logger.debug({
     operation: "threads/[id]/GET",
     threadId: id,
@@ -71,10 +88,42 @@ export default createRoute(async (c) => {
       <main className="container mx-auto flex-grow py-8 px-4">
         <section className="bg-white rounded-lg shadow-md p-6 mb-8">
           <div>
-            <h3 className="text-purple-600 font-bold text-xl mb-4">
-              {allResponsesResult.value.thread.threadTitle.val} (
-              {allResponsesResult.value.thread.responseCount})
-            </h3>
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <h3 className="text-purple-600 font-bold text-xl">
+                {allResponsesResult.value.thread.threadTitle.val} (
+                {allResponsesResult.value.thread.responseCount})
+              </h3>
+              {threadAttrs.sticky && (
+                <span className="inline-block bg-orange-200 text-orange-800 text-xs font-semibold px-2 py-1 rounded">
+                  【浮き】
+                </span>
+              )}
+              {threadAttrs.sageOnly && (
+                <span className="inline-block bg-violet-200 text-violet-800 text-xs font-semibold px-2 py-1 rounded">
+                  【sage】
+                </span>
+              )}
+              {threadAttrs.live && (
+                <span className="inline-block bg-red-200 text-red-800 text-xs font-semibold px-2 py-1 rounded">
+                  【実況】
+                </span>
+              )}
+              {threadAttrs.ninpochoLevel !== undefined && threadAttrs.ninpochoLevel > 0 && (
+                <span className="inline-block bg-rose-200 text-rose-800 text-xs font-semibold px-2 py-1 rounded">
+                  【Lv{threadAttrs.ninpochoLevel}】
+                </span>
+              )}
+              {threadAttrs.password && (
+                <span className="inline-block bg-amber-200 text-amber-800 text-xs font-semibold px-2 py-1 rounded">
+                  【鍵】
+                </span>
+              )}
+              {threadAttrs.noPool && (
+                <span className="inline-block bg-emerald-200 text-emerald-800 text-xs font-semibold px-2 py-1 rounded">
+                  【プール禁止】
+                </span>
+              )}
+            </div>
             {allResponsesResult.value.responses.map((resp) => {
               return (
                 <div
@@ -89,23 +138,49 @@ export default createRoute(async (c) => {
                       className={`text-gray-700 ${
                         isSage(resp.mail) ? "text-violet-600" : ""
                       }`}
+                      style={{ color: resp.authorName.val.color || nameColor }}
                     >
-                      {formatReadAuthorName(resp.authorName)}
+                      {formatReadAuthorName(resp.authorName, resp.capcode)}
                     </span>
-                    <span className="text-gray-500 text-sm">
+                    {resp.isOwner && (
+                      <span className="text-red-600 font-bold">(主)</span>
+                    )}
+                    {resp.isSubOwner && (
+                      <span className="text-orange-600 font-bold">(副)</span>
+                    )}
+                    <span className="text-gray-500 text-sm" data-mtime={Math.floor(resp.postedAt.val.getTime() / 1000)}>
                       {formatDate(resp.postedAt.val, {
                         acceptLanguage:
                           c.req.header("Accept-Language") ?? undefined,
                       })}
                     </span>
-                    <span className="text-gray-500 text-sm">
-                      ID: {resp.hashId.val}
-                    </span>
+                    {(!threadAttrs.noId) && resp.dailyId && (
+                      <span className="text-gray-500 text-sm">
+                        ID: {resp.dailyId}
+                      </span>
+                    )}
+                    {(!threadAttrs.noId) && (
+                      <span className="text-gray-500 text-sm">
+                        ID: {resp.hashId.val}
+                      </span>
+                    )}
+                    {resp.wattyoi && (
+                      <span className="text-gray-500 text-sm">
+                        {resp.wattyoi}
+                      </span>
+                    )}
                   </div>
                   <div className="text-gray-800 max-h-80 overflow-y-auto whitespace-pre-wrap">
                     <ResponseContentComponent
                       threadId={resp.threadId}
                       responseContent={resp.responseContent}
+                      mail={resp.mail}
+                      authorName={resp.authorName}
+                      isOwner={resp.isOwner}
+                      isSubOwner={resp.isSubOwner}
+                      linkColor={linkColor}
+                      nameColor={resp.authorName.val.color || nameColor}
+                      wattyoi={resp.wattyoi}
                     />
                   </div>
                 </div>
@@ -155,33 +230,51 @@ export default createRoute(async (c) => {
                 <input
                   type="text"
                   name="name"
-                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  value={userCookie.name}
+                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </label>
               <label className="block text-gray-700 text-sm font-bold mb-2 md:w-1/2">
                 メールアドレス:
                 <input
+                  type="email"
                   name="mail"
-                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  value={userCookie.mail}
+                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </label>
             </div>
+            {threadAttrs.password && (
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                スレッドパスワード:
+                <input
+                  type="password"
+                  name="password"
+                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </label>
+            )}
             <div>
               <label className="block text-gray-700 text-sm font-bold mb-2">
                 本文:
                 <textarea
                   name="content"
                   required
-                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline h-32"
+                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 h-32"
                 ></textarea>
               </label>
             </div>
             <button
               type="submit"
-              className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               書き込む
             </button>
+            {captchaEnabled && (
+              <>
+                <CaptchaWidget siteKey={captchaSiteKey} provider={captchaProvider} />
+              </>
+            )}
             {/* Add the FormEnhance island */}
             <FormEnhance />
           </form>
@@ -202,6 +295,9 @@ export default createRoute(async (c) => {
           ↓
         </a>
       </div>
+      <ImageOverlay />
+      <TimeAgo />
+      <ClearFileButton />
     </>
   );
 });

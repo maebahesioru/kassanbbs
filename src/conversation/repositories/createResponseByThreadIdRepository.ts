@@ -10,7 +10,6 @@ import type { ReadThreadId } from "../domain/read/ReadThreadId";
 import type { WriteResponse } from "../domain/write/WriteResponse";
 import type { Result } from "neverthrow";
 
-// レスポンスを作成するリポジトリ
 export const createResponseByThreadIdRepository = async (
   { sql, logger }: VakContext,
   response: WriteResponse
@@ -23,6 +22,8 @@ export const createResponseByThreadIdRepository = async (
     DatabaseError
   >
 > => {
+  const beId = response.authorName.val.beId ?? null;
+
   const trip =
     response.authorName.val._type === "some"
       ? response.authorName.val.trip
@@ -36,37 +37,50 @@ export const createResponseByThreadIdRepository = async (
   });
 
   try {
-    const result = await sql<
-      { id: string; response_number: number; thread_id: string }[]
-    >`
-        INSERT INTO responses(
-            id,
-            thread_id,
-            response_number,
-            author_name,
-            mail,
-            posted_at,
-            response_content,
-            hash_id,
-            trip
-        )
-        VALUES(
-            ${response.id.val}::uuid,
-            ${response.threadId.val}::uuid,
-            -- レスポンス番号はスレッド内での最大値 + 1
-            (
-                SELECT COALESCE(MAX(response_number), 0) + 1
-                FROM responses
-                WHERE thread_id = ${response.threadId.val}::uuid
-            ),
-            ${response.authorName.val.authorName},
-            ${response.mail.val},
-            ${response.postedAt.val},
-            ${response.responseContent.val},
-            ${response.hashId.val},
-            ${trip}
-        ) RETURNING id, response_number, thread_id
+    const result = await sql.begin(async (sql) => {
+      await sql`SELECT id FROM threads WHERE id = ${response.threadId.val}::uuid FOR UPDATE`;
+      const [maxRes] = await sql`
+        SELECT COALESCE(MAX(response_number), 0) + 1 as next_num
+        FROM responses
+        WHERE thread_id = ${response.threadId.val}::uuid
+          AND is_deleted = FALSE
       `;
+      const responseNumber = maxRes.next_num;
+      return sql<
+        { id: string; response_number: number; thread_id: string }[]
+      >`
+          INSERT INTO responses(
+              id,
+              thread_id,
+              response_number,
+              author_name,
+              mail,
+              posted_at,
+              response_content,
+              hash_id,
+              trip,
+              content_hash,
+              be_id,
+              wattyoi,
+              board_id
+          )
+          VALUES(
+              ${response.id.val}::uuid,
+              ${response.threadId.val}::uuid,
+              ${responseNumber},
+              ${response.authorName.val.authorName},
+              ${response.mail.val},
+              ${response.postedAt.val},
+              ${response.responseContent.val},
+              ${response.hashId.val},
+              ${trip},
+              ${response.contentHash ?? null},
+              ${beId},
+              ${response.wattyoi ?? null},
+              (SELECT board_id FROM threads WHERE id = ${response.threadId.val}::uuid)
+          ) RETURNING id, response_number, thread_id
+        `;
+    });
 
     if (!result || result.length !== 1) {
       logger.error({

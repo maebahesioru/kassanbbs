@@ -19,6 +19,12 @@ import {
   createReadThreadWithResponses,
   type ReadThreadWithResponses,
 } from "../domain/read/ReadThreadWithResponses";
+import { generateDailyId } from "../domain/read/ReadDailyId";
+import { createCapcode } from "../../cap/domain/read/ReadCapcode";
+import {
+  createThreadAttr,
+  type ThreadAttr,
+} from "../domain/read/ReadThreadAttr";
 
 import type { ValidationError } from "../../shared/types/Error";
 import type { VakContext } from "../../shared/types/VakContext";
@@ -53,8 +59,10 @@ export const getAllResponsesByThreadEpochIdRepository = async (
         response_content: string;
         hash_id: string;
         trip: string | null;
+        be_id: string | null;
         title: string;
         total_count: number | null;
+        attrs: ThreadAttr;
       }[]
     >`
     WITH resp_count AS (
@@ -63,6 +71,7 @@ export const getAllResponsesByThreadEpochIdRepository = async (
       WHERE thread_id IN (
         SELECT id FROM threads WHERE epoch_id = ${threadEpochId.val}
       )
+        AND is_deleted = FALSE
       GROUP BY thread_id
     )
     SELECT
@@ -75,14 +84,17 @@ export const getAllResponsesByThreadEpochIdRepository = async (
       r.response_content,
       r.hash_id,
       r.trip,
+      r.be_id,
       t.title,
-      rc.total_count
+      rc.total_count,
+      t.attrs
     FROM responses AS r
     JOIN threads AS t
       ON r.thread_id = t.id
     JOIN resp_count AS rc
       ON rc.thread_id = r.thread_id
     WHERE t.epoch_id = ${threadEpochId.val}
+      AND r.is_deleted = FALSE
     ORDER BY r.response_number
     `;
 
@@ -120,7 +132,7 @@ export const getAllResponsesByThreadEpochIdRepository = async (
       const combinedResult = Result.combine([
         createReadResponseId(response.id),
         createReadResponseNumber(response.response_number),
-        createReadAuthorName(response.author_name, response.trip),
+        createReadAuthorName(response.author_name, response.trip, response.be_id),
         createReadMail(response.mail),
         createReadPostedAt(response.posted_at),
         createReadResponseContent(response.response_content),
@@ -149,6 +161,22 @@ export const getAllResponsesByThreadEpochIdRepository = async (
         hashId,
       ] = combinedResult.value;
 
+      const dailyId = generateDailyId(
+        hashId.val,
+        response.thread_id,
+        postedAt.val
+      );
+
+      let capcode: string | undefined;
+      if (response.trip) {
+        capcode = createCapcode(
+          authorName.val._type === "some"
+            ? authorName.val.authorName
+            : authorName.val.authorName,
+          response.trip
+        ) as string;
+      }
+
       const responseResult = createReadResponse({
         responseId,
         threadId,
@@ -158,6 +186,8 @@ export const getAllResponsesByThreadEpochIdRepository = async (
         postedAt,
         responseContent,
         hashId,
+        dailyId,
+        capcode,
       });
 
       if (responseResult.isErr()) {
@@ -203,11 +233,25 @@ export const getAllResponsesByThreadEpochIdRepository = async (
     }
     const totalCount = result[0].total_count;
 
+    const attrsResult = createThreadAttr(
+      (firstResponse.attrs as Record<string, unknown>) ?? {}
+    );
+    if (attrsResult.isErr()) {
+      logger.error({
+        operation: "getAllResponsesByThreadEpochId",
+        threadEpochId: threadEpochId.val,
+        error: attrsResult.error,
+        message: "Failed to parse thread attrs",
+      });
+      return err(attrsResult.error);
+    }
+
     const threadWithResponsesResult = createReadThreadWithResponses(
       threadId,
       threadTitle,
       totalCount,
-      responses
+      responses,
+      attrsResult.value
     );
 
     if (threadWithResponsesResult.isErr()) {

@@ -20,6 +20,10 @@ export const createWritePassword = async (
     return err(new ValidationError("パスワードを入力してください"));
   }
 
+  if (value.length < 8) {
+    return err(new ValidationError("パスワードは8文字以上で入力してください"));
+  }
+
   //   const isPasswordStrengthResult = await getIsPasswordStrength();
   //   if (isPasswordStrengthResult.isErr()) {
   //     return err(isPasswordStrengthResult.error);

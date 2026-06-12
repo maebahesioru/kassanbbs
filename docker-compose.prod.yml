@@ -12,8 +12,17 @@ services:
     networks:
       - all_network
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "bun", "-e", "fetch('http://localhost:3000/health').then(r => process.exit(r.ok?0:1)).catch(() => process.exit(1))"]
+
+
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.app.rule=PathPrefix(`/`)"
@@ -27,7 +36,7 @@ services:
     image: traefik:3.3.4
     ports:
       - "80:80"
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     command:
       - "--global.checkNewVersion=true"
       - "--global.sendAnonymousUsage=false"
@@ -76,9 +85,6 @@ services:
         condition: service_healthy # db のヘルスチェックが成功するのを待つ
 
 networks:
-  frontend:
-  backend:
-  migration:
   all_network:
 
 volumes:

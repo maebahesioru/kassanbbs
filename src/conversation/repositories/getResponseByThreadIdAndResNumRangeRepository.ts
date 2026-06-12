@@ -19,6 +19,12 @@ import {
   createReadThreadWithResponses,
   type ReadThreadWithResponses,
 } from "../domain/read/ReadThreadWithResponses";
+import { generateDailyId } from "../domain/read/ReadDailyId";
+import { createCapcode } from "../../cap/domain/read/ReadCapcode";
+import {
+  createThreadAttr,
+  type ThreadAttr,
+} from "../domain/read/ReadThreadAttr";
 
 import type { ValidationError } from "../../shared/types/Error";
 import type { VakContext } from "../../shared/types/VakContext";
@@ -70,24 +76,28 @@ export const getResponseByThreadIdAndResNumRangeRepository = async (
         response_content: string;
         hash_id: string;
         trip: string | null;
+        be_id: string | null;
         title: string;
         total_count: number | null;
+        attrs: ThreadAttr;
       }[]
     >`
     WITH resp_count AS (
       SELECT thread_id, COUNT(*)::int AS total_count
       FROM responses
       WHERE thread_id = ${threadId.val}::uuid
+        AND is_deleted = FALSE
       GROUP BY thread_id
     ),
     selected AS (
       SELECT
         r.id, r.thread_id, r.response_number, r.author_name, r.mail,
-        r.posted_at, r.response_content, r.hash_id, r.trip, t.title
+        r.posted_at, r.response_content, r.hash_id, r.trip, r.be_id, t.title, t.attrs
       FROM responses AS r
       JOIN threads AS t ON r.thread_id = t.id
       WHERE
         r.thread_id = ${threadId.val}::uuid
+        AND r.is_deleted = FALSE
         AND (
           (${isStartNumNull} OR r.response_number >= ${startNumRaw})
           AND (${isEndNumNull} OR r.response_number <= ${endNumRaw})
@@ -140,7 +150,7 @@ export const getResponseByThreadIdAndResNumRangeRepository = async (
       const combinedResult = Result.combine([
         createReadResponseId(response.id),
         createReadResponseNumber(response.response_number),
-        createReadAuthorName(response.author_name, response.trip),
+        createReadAuthorName(response.author_name, response.trip, response.be_id),
         createReadMail(response.mail),
         createReadPostedAt(response.posted_at),
         createReadResponseContent(response.response_content),
@@ -168,6 +178,22 @@ export const getResponseByThreadIdAndResNumRangeRepository = async (
         hashId,
       ] = combinedResult.value;
 
+      const dailyId = generateDailyId(
+        hashId.val,
+        response.thread_id,
+        postedAt.val
+      );
+
+      let capcode: string | undefined;
+      if (response.trip) {
+        capcode = createCapcode(
+          authorName.val._type === "some"
+            ? authorName.val.authorName
+            : authorName.val.authorName,
+          response.trip
+        ) as string;
+      }
+
       const responseResult = createReadResponse({
         responseId,
         threadId: threadIdResult.value,
@@ -177,6 +203,8 @@ export const getResponseByThreadIdAndResNumRangeRepository = async (
         postedAt,
         responseContent,
         hashId,
+        dailyId,
+        capcode,
       });
 
       if (responseResult.isErr()) {
@@ -226,11 +254,25 @@ export const getResponseByThreadIdAndResNumRangeRepository = async (
     }
     const totalCount = result[0].total_count;
 
+    const attrsResult = createThreadAttr(
+      (firstResponse.attrs as Record<string, unknown>) ?? {}
+    );
+    if (attrsResult.isErr()) {
+      logger.error({
+        operation: "getResponseByThreadIdAndResNumRange",
+        threadId: threadId.val,
+        error: attrsResult.error,
+        message: "Failed to parse thread attrs",
+      });
+      return err(attrsResult.error);
+    }
+
     const threadWithResponsesResult = createReadThreadWithResponses(
       threadIdResult.value,
       threadTitle,
       totalCount,
-      responses
+      responses,
+      attrsResult.value
     );
 
     if (threadWithResponsesResult.isErr()) {

@@ -8,6 +8,8 @@
     "preview": "wrangler dev",
     "deploy:workers": "$npm_execpath run build:workers && wrangler deploy",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run --reporter=verbose",
+    "test:watch": "vitest",
     "lint": "DISABLE_SAFEQL=true eslint .",
     "migrateup": "dbmate up",
     "migratedown": "dbmate down"
@@ -40,7 +42,6 @@
     "dbmate": "^2.26.0",
     "dotenv": "^16.4.7",
     "eslint-import-resolver-typescript": "^3.9.1",
-    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-import-x": "^4.8.0",
     "eslint-plugin-unused-imports": "^4.1.4",
     "libpg-query": "^16.3.0",

@@ -19,6 +19,10 @@ export const jwtAuthMiddleware = () => {
       );
     }
 
+    if (secret === "secret" && import.meta.env.PROD) {
+      console.warn("JWT_SECRET_KEY is set to the default value 'secret' in production - this is insecure!");
+    }
+
     const token = getCookie(c, "jwt");
 
     if (!token) {
@@ -26,10 +30,8 @@ export const jwtAuthMiddleware = () => {
     }
 
     try {
-      await verify(token, secret); // JWTを検証
-      // payload を context に保存するなど、後続の処理で利用できるようにする
-      // 必要ないのでコメントアウト
-      // c.set("jwtPayload", payload);
+      const payload = await verify(token, secret);
+      c.set("jwtPayload", payload as { exp: number; username?: string; isSuperAdmin?: boolean });
       await next();
     } catch {
       return c.redirect("/login/admin", 302);

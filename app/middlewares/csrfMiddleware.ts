@@ -70,11 +70,6 @@ export const csrf = (options?: CSRFOptions): MiddlewareHandler => {
   })(options?.origin);
   const isAllowedOrigin = (origin: string | undefined, c: Context) => {
     if (origin === undefined) {
-      // Chmate等専用ブラウザからのリクエストはoriginが空になるので
-      // User-Agentに"2chMate"が含まれている場合は許可する
-      if (c.req.header("user-agent")?.includes("2chMate")) {
-        return true;
-      }
       return false;
     }
     return handler(origin, c);

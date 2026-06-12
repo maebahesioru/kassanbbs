@@ -20,6 +20,8 @@ export type WriteResponse = {
   readonly responseContent: WriteResponseContent;
   readonly hashId: WriteHashId;
   readonly threadId: WriteThreadId;
+  readonly contentHash?: string;
+  readonly wattyoi?: string;
 };
 
 export const createWriteResponse = async ({
@@ -29,6 +31,8 @@ export const createWriteResponse = async ({
   hashId,
   postedAt,
   getThreadId,
+  contentHash,
+  wattyoi,
 }: {
   authorName: WriteAuthorName;
   mail: WriteMail;
@@ -36,14 +40,14 @@ export const createWriteResponse = async ({
   hashId: WriteHashId;
   postedAt: WritePostedAt;
   getThreadId: () => Promise<Result<string, Error>>;
+  contentHash?: string;
+  wattyoi?: string;
 }): Promise<Result<WriteResponse, Error>> => {
-  // スレッドのIDを取得
   const getThreadIdResult = await getThreadId();
   if (getThreadIdResult.isErr()) {
     return err(getThreadIdResult.error);
   }
 
-  // 詰め替えが必要
   const createThreadIdResult = createWriteThreadId(getThreadIdResult.value);
   if (createThreadIdResult.isErr()) {
     return err(createThreadIdResult.error);
@@ -59,5 +63,7 @@ export const createWriteResponse = async ({
     postedAt,
     responseContent,
     hashId,
+    contentHash,
+    wattyoi,
   });
 };

@@ -10,11 +10,15 @@ import type { VakContext } from "../../shared/types/VakContext";
 import type { ReadResponse } from "../domain/read/ReadResponse";
 import type { ReadThread } from "../domain/read/ReadThread";
 
-export const getTopPageUsecase = async (vakContext: VakContext) => {
+export const getTopPageUsecase = async (
+  vakContext: VakContext,
+  boardId?: string
+) => {
   const { logger } = vakContext;
 
   logger.info({
     operation: "getTopPageUsecase",
+    boardId,
     message: "Starting top page data retrieval",
   });
 
@@ -24,7 +28,7 @@ export const getTopPageUsecase = async (vakContext: VakContext) => {
     message: "Fetching top 30 threads",
   });
 
-  const threadsTop30Result = await getLatest30ThreadsRepository(vakContext);
+  const threadsTop30Result = await getLatest30ThreadsRepository(vakContext, { boardId });
   if (threadsTop30Result.isErr()) {
     logger.error({
       operation: "getTopPageUsecase",
@@ -33,16 +37,21 @@ export const getTopPageUsecase = async (vakContext: VakContext) => {
     });
     return err(threadsTop30Result.error);
   }
+  // プールされたスレッドはトップページに表示しない
+  const visibleThreadsTop30 = threadsTop30Result.value.filter(
+    (thread) => !thread.isPooled
+  );
+
   // これがナビゲーションエリアに表示される
 
   logger.debug({
     operation: "getTopPageUsecase",
-    threadCount: threadsTop30Result.value.length,
+    threadCount: visibleThreadsTop30.length,
     message: "Successfully fetched top 30 threads",
   });
 
   // 次に、スレッド上位30件から上位10件を取得
-  const top10ThreadIdsResult = threadsTop30Result.value
+  const top10ThreadIdsResult = visibleThreadsTop30
     .slice(0, 10)
     .map((thread) => {
       return thread.id;
@@ -101,7 +110,7 @@ export const getTopPageUsecase = async (vakContext: VakContext) => {
       responses: ReadResponse[];
     }
   > = new Map();
-  for (const thread of threadsTop30Result.value.slice(0, 10)) {
+  for (const thread of visibleThreadsTop30.slice(0, 10)) {
     threadResponseMap.set(thread.id.val, {
       thread,
       responses: [],
@@ -144,13 +153,13 @@ export const getTopPageUsecase = async (vakContext: VakContext) => {
   // スレッド上位10件についてはレスを含めた構造体を返す
   logger.info({
     operation: "getTopPageUsecase",
-    threadCount: threadsTop30Result.value.length,
+    threadCount: visibleThreadsTop30.length,
     detailedThreadCount: threadResponseArray.length,
     message: "Successfully retrieved and processed top page data",
   });
 
   return ok({
-    threadTop30: threadsTop30Result.value,
+    threadTop30: visibleThreadsTop30,
     responsesTop10: threadResponseArray,
   });
 };

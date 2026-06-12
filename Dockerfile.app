@@ -20,6 +20,7 @@ WORKDIR /dist
 
 # ビルドステージから必要なファイルだけコピー
 COPY --from=build /app/dist /dist
+COPY --from=build /app/node_modules /dist/node_modules
 
 # アプリケーションの実行
-CMD ["./index.js"]
+CMD ["bun", "./index.js"]

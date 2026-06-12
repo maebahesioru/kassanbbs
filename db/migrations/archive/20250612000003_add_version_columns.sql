@@ -1,0 +1,7 @@
+--migrate:up
+ALTER TABLE admin_logs ADD COLUMN IF NOT EXISTS version TEXT NOT NULL DEFAULT '';
+ALTER TABLE write_logs ADD COLUMN IF NOT EXISTS version TEXT NOT NULL DEFAULT '';
+
+--migrate:down
+ALTER TABLE write_logs DROP COLUMN IF EXISTS version;
+ALTER TABLE admin_logs DROP COLUMN IF EXISTS version;

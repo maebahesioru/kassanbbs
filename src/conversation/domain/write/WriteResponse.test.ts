@@ -8,7 +8,7 @@ describe("WriteResponse", () => {
     // 必要な値オブジェクトのモック
     const mockAuthorName = {
       _type: "WriteAuthorName" as const,
-      val: { _type: "none" as const, authorName: "テスト太郎" },
+      val: { _type: "none" as const, authorName: "テスト太郎", beId: null },
     };
     const mockMail = { _type: "WriteMail" as const, val: "test@example.com" };
     const mockResponseContent = {
@@ -63,7 +63,7 @@ describe("WriteResponse", () => {
     // 必要な値オブジェクトのモック
     const mockAuthorName = {
       _type: "WriteAuthorName" as const,
-      val: { _type: "none" as const, authorName: "テスト太郎" },
+      val: { _type: "none" as const, authorName: "テスト太郎", beId: null },
     };
     const mockMail = { _type: "WriteMail" as const, val: "test@example.com" };
     const mockResponseContent = {
@@ -100,7 +100,7 @@ describe("WriteResponse", () => {
     // 必要な値オブジェクトのモック
     const mockAuthorName = {
       _type: "WriteAuthorName" as const,
-      val: { _type: "none" as const, authorName: "テスト太郎" },
+      val: { _type: "none" as const, authorName: "テスト太郎", beId: null },
     };
     const mockMail = { _type: "WriteMail" as const, val: "test@example.com" };
     const mockResponseContent = {

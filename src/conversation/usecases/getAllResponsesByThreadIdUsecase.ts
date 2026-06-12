@@ -47,6 +47,7 @@ export const getAllResponsesByThreadIdUsecase = async (
     vakContext,
     {
       threadId: threadIdResult.value,
+      isAdmin: false,
     }
   );
   if (responsesWithThreadResult.isErr()) {

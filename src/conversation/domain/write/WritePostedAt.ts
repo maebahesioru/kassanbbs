@@ -1,6 +1,6 @@
-import { ok, type Result } from "neverthrow";
+import { ok, err, type Result } from "neverthrow";
 
-import type { ValidationError } from "../../../shared/types/Error";
+import { ValidationError } from "../../../shared/types/Error";
 
 // 投稿日時
 export type WritePostedAt = {
@@ -11,6 +11,9 @@ export type WritePostedAt = {
 export const createWritePostedAt = (
   value: Date
 ): Result<WritePostedAt, ValidationError> => {
+  if (value.getTime() > Date.now() + 1000) {
+    return err(new ValidationError("不正な日時です"));
+  }
   return ok({ _type: "WritePostedAt", val: value });
 };
 
