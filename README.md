@@ -2,245 +2,200 @@
   <img src="./public/favicon.svg" width="100" height="80" />
   <h1>KassanBBS</h1>
   <img src="./readme/screenshot1.png" />
-  <p>2ちゃんねる風のスレッドフロート型BBS</p>
+  <p>2ちゃんねる風スレッドフロート型BBS (ex0ch互換)</p>
 </div>
 
 ## 概要
 
-KassanBBS は、2 ちゃんねる風のスレッドフロート型 BBS です。  
-ゼロちゃんねるプラスを参考に開発されました。
+KassanBBS は、2ちゃんねる/5ちゃんねる互換のスレッドフロート型BBSです。
+[ex0ch](https://github.com/PrefKarafuto/ex0ch)（ゼロちゃんねるプラス派生）の全機能をTypeScript + PostgreSQLに移植しました。
+
+TypeScript (HonoX) + PostgreSQL + Tailwind CSS のモダンスタックで構成され、Cloudflare Workers / Bun / Node.js のマルチランタイムに対応しています。
 
 ### 主な特徴
 
-- [ゼロちゃんねるプラス](https://ja.osdn.net/projects/zerochplus/)に似た UI
-- スレッドフロート型
-- クライアントサイドで JavaScript を使用しない動作
-- レスポンシブデザインへの対応(Tailwind CSS を採用)
-- 1 コマンドでデプロイ(docker compose を採用)
-- [ChMate](https://play.google.com/store/apps/details?id=jp.co.airfront.android.a2chMate&hl=ja)への対応
-- モダンで開発体験の良い技術スタック
-- DDD に基づいた設計とレイヤー分割
+- **ex0ch互換**: 全移植機能（200+機能） - 管理画面、プラグイン、忍法帖、SLIP/Wattyoi 等
+- **専ブラ対応**: ChMate / 2chMate 等の専用ブラウザに対応 (`/senbura/`)
+- **マルチランタイム**: Cloudflare Workers / Bun / Node.js (Docker)
+- **DDD設計**: ドメイン駆動設計 + neverthrow Result型によるエラーハンドリング
+- **高セキュリティ**: JWT認証、HMAC署名、CSP、CSRF対策、XSS対策 等の8次監査219件修正済み
+- **マルチボード**: 複数掲示板の運用に対応
+- **レスポンシブ**: Tailwind CSS によるモバイル対応
 
-## インストール
+## クイックスタート
 
-### 本番環境 (Cloudflare Workers)
-
-当システムは Cloudflare Workers にデプロイすることができます。
-
-まず依存関係をインストールします。
+### 開発環境
 
 ```bash
+# 依存関係のインストール
 pnpm install
+
+# .envファイルを作成（.env.exampleをコピーして編集）
+cp .env.example .env
+# VITE_POSTGRES_USER, VITE_POSTGRES_PASSWORD, VITE_POSTGRES_DB を設定
+
+# PostgreSQLを起動（Docker）
+docker compose -f docker-compose.dev.yml up -d
+
+# マイグレーション
+pnpm run migrateup
+
+# 開発サーバー起動
+pnpm run dev
 ```
 
-必要となるデータベースを用意します。ここでは Neon を利用しますが、PostgreSQL 互換のデータベースであれば何でも構いません。
-[この](https://neon.tech/docs/get-started-with-neon/signing-up)ガイドに従って、Neon のアカウントを作成し、データベースを作成してください。その際、データベースへの接続情報を取得する必要があります。
+`http://localhost:80` にアクセス。
 
-```bash
-postgrest://username:password@hostname:port/database
-```
-
-次に、dbmate を用いてデータベースのマイグレーションを行います。dbmate は、データベースのスキーマを管理するためのツールです。
-
-```bash
-pnpm dbmate up --url (取得した接続情報)
-```
-
-Cloudflare Workers のアカウントを作成してください。[こちら](https://dash.cloudflare.com/sign-up)からアカウントを作成できます。すでに存在する場合は、ログインしてください。
-
-デプロイを行ないます。内部で wrangler を使用しています。
-
-```bash
-pnpm run deploy:workers
-```
-
-デプロイが完了すると、デプロイされた URL が表示されます。
-
-最後に、データベース接続情報・JWT のシークレットを環境変数として設定します。
-
-```bash
-pnpm wrangler secret put DATABASE_URL
-pnpm wrangler secret put JWT_SECRET_KEY
-```
-
-それぞれの内容を受け付けるプロンプトが表示されるので、入力してください。正常に設定されると、再度デプロイされます。
-
-完了後、デプロイされた URL にアクセスできるようになります。
-
-### 本番環境 (ローカル環境・Docker)
-
-Docker における本番環境では、以下のコンテナが起動します。
-
-| サービス   | 概要                              |
-| ---------- | --------------------------------- |
-| Traefik    | リバースプロキシ                  |
-| PostgreSQL | データベース                      |
-| Bun        | アプリケーションサーバ (KassanBBS) |
-| DBMate     | マイグレーションツール            |
-
-`.env`ファイルを編集してください。
-
-```bash
-# 本番用の環境変数
-TRUSTED_PROXY_ID=proxy1
-POSTGRES_USER=myuser
-POSTGRES_PASSWORD=mypassword
-POSTGRES_DB=myapp
-JWT_SECRET_KEY=secret
-```
-
-- `TRUSTED_PROXY_ID`: リバースプロキシの識別子。ユーザに推測されないように設定してください。
-- `POSTGRES_USER`: データベースのユーザ名
-- `POSTGRES_PASSWORD`: データベースのパスワード
-- `POSTGRES_DB`: データベース名
-- `JWT_SECRET_KEY`: JWT の秘密鍵。ユーザに推測されないように設定してください。
-
-次に、Docker の有効な環境で以下のコマンドを実行してください。
+### 本番環境 (Docker)
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-アプリケーションは 80 ポートで起動します。
-データベースへのマイグレーションは自動で行われます。
-
-### 開発環境
-
-開発環境では、データベースのみを Docker で起動します。
-アプリケーション自体は Vite で起動します。
-
-`.env`ファイルを編集してください。
+### 本番環境 (Cloudflare Workers)
 
 ```bash
-# 開発環境用の環境変数
-VITE_POSTGRES_USER=postgres
-VITE_POSTGRES_PASSWORD=postgres
-VITE_POSTGRES_DB=kassanbbs
-VITE_JWT_SECRET_KEY=secret
+pnpm run deploy:workers
+pnpm wrangler secret put DATABASE_URL
+pnpm wrangler secret put JWT_SECRET_KEY
 ```
 
-- `VITE_POSTGRES_USER`: データベースのユーザ名
-- `VITE_POSTGRES_PASSWORD`: データベースのパスワード
-- `VITE_POSTGRES_DB`: データベース名
-- `VITE_JWT_SECRET_KEY`: JWT の秘密鍵。ユーザに推測されないように設定してください。
+## 初期設定
 
-次に、以下のコマンドを実行してください。
+| 項目 | デフォルト値 |
+|------|-------------|
+| 管理画面 | `/admin` |
+| ログインURL | `/login/admin` |
+| ユーザー名 | `admin` |
+| パスワード | `password`（**必ず変更してください**） |
 
-```bash
-docker compose -f docker-compose.dev.yml up -d
-```
+## 機能一覧
 
-アプリケーションを起動するには、以下のコマンドを実行してください。
+### コア機能
+- スレッド作成・レス投稿・検索・削除・編集
+- NGワードフィルタリング
+- スパム検知 (SpamKill)
+- 重複投稿/タイトル検出
+- スレッド管理（停止/プール/自動削除/アーカイブ/属性編集）
+- 複数掲示板管理
+- 管理者操作ログ
 
-```bash
-pnpm install # 依存関係のインストール
-sudo pnpm run dev # 開発サーバーの起動
-```
+### 投稿機能
+- トリップコード (`#key`)
+- カラーネーム (`@RRGGBB@`)
+- アイコン (`◆01` - 266種5ch互換)
+- 投稿コマンド (`!sage`, `!markdown`, `!force774`, `!ninja`, `!othello` 等)
+- 日別ID表示
+- Capcode (◆) / スレ主 (主) / 副管理人 (副) 表示
+- ユーザーCookie (名前/メール保存)
+- `tasukeruyo` IP+UA表示
+- 長文自動折りたたみ (30行以上)
 
-Vite が 80 ポートで起動します。
-管理者権限が必要な場合は、`sudo`を付けてください。
+### ユーザーコマンド (メッセージ本文)
+`!changetitle`, `!delete`, `!add`, `!vote`, `!attr`, `!omikuji`, `!extend`, `!delcmd`, `!loadattr`, `!noid`, `!changeid`, `!ninlv`, `!change774`, `!sub`, `!cap`, `!pass`, `!maxres`, `!sage`, `!force774`, `!stop`, `!pool`, `!live`, `!slip`, `!ban`, `!hidenusi`, `!float`, `!nopool`
 
-なお、他のポートで動作させる場合や一般公開が必要ない場合は、`vite.config.ts`を編集してください。
+### 認証・セキュリティ
+- JWT管理者認証
+- 複数管理者・グループ権限管理 (30種capビットマスク)
+- Cloudflare Turnstile / reCAPTCHA / hCaptcha
+- ワンタイムパスワード認証 (!auth)
+- CSRF対策 + HMAC署名Cookie
+- 管理者操作ログ (7種類: ADMIN/ERR/THR/WRT/FLR/HST/SMB/SBH)
+- 投稿失敗ログ (FLR) + 許可後投稿機能
 
-## 使い方
+### 規制・対策
+- Samba段階的規制 (CAUTION→WARNING→LISTED→BANNED)
+- 忍法帖 (Ninpocho) 100段階XPシステム + ゴールド経済
+- ユーザー追跡 + 強制sage/kote
+- IP/CIDR/ホスト/UA/セッション アクセス制御
+- スレッド作成レート制限 (時間単位+ローリング)
+- プロキシ検出 (proxycheck.io API)
+- DNSBL連携 (Spamhaus等)
+- VPN検出 (40+パターン)
+- CDN/Proxy IP検出 (Cloudflare他)
 
-KassanBBS では、すべての画面がレスポンシブデザインに対応しています。
+### ex0ch互換機能
+- **SLIP/Wattyoi**: 日本語キャリア40+パターン検出、週替わりシード、マルチレベル (vvv〜vvvvvv)
+- **bbscgi互換**: `/test/bbs.cgi` (Shift_JIS対応)
+- **read.cgi互換**: `/test/read.cgi/:bbs/:key/:options`
+- **search.cgi互換**: 4種検索タイプ、日付範囲、カテゴリ
+- **専ブラ対応**: `/senbura/subject.txt`, `SETTING.TXT`, `head.txt`, `dat/:key.dat`
+- **エラーコード完全互換**: 70+エラーコード + 2ch互換Sambaコード (593/594/599)
+- **トリップ生成**: SHA-1 + crypt互換
 
-### トップ画面
+### 管理画面
+- 基本設定（掲示板名/ルール/最大文字数/カラー等 50+設定項目）
+- NGワード管理 + テスト機能
+- IP制限管理（CIDR/ホスト/UA/セッション）
+- スレッド管理（停止/プール/自動削除/属性編集/削除）
+- レス管理（編集/削除/管理者投稿）
+- 管理画面検索（スレッド/レス/ログ/忍法帖）
+- ユーザー/グループ管理 + 権限設定
+- 忍法帖管理（BAN/レベル設定）
+- Samba管理
+- プラグイン管理
+- バナー/広告管理
+- お知らせ管理
+- 過去ログ管理
+- 連合(Federation)設定
+- インデックス再構築
+- アップデート確認
 
-![トップ画面](./readme/screenshot3.png)
-![トップ画面](./readme/screenshot4.png)
-
-上位のスレッド 30 件の一覧と、先頭スレッド 1 件&上位スレッド 10 件のレスを表示します。
-レスポンスの返信フォームやスレッドの新規作成フォームも表示されます。
-UI はゼロちゃんねるプラスのものに準拠しています。
-
-### スレッド画面
-
-![スレッド画面](./readme/screenshot5.png)
-
-すべてのスレッドのレスを表示します。また、レスの返信フォームも表示されます。
-
-### 管理者画面
-
-![ログイン画面](./readme/screenshot6.png)
-
-`/admin`にアクセスすると、管理者画面にアクセスできます。
-ログイン していない状態では、`/login/admin`にリダイレクトされます。ここでパスワードを入力すると、管理者画面にアクセスできます。
-パスワードはデフォルトで`password`です。
-
-掲示板の名称やローカルルール、名無しの名前を変更できます。
-
-![管理者画面](./readme/screenshot7.png)
-
-また、パスワードの変更も可能です。
-
-![パスワード変更画面](./readme/screenshot8.png)
-
-デフォルトのパスワードから変更することを強く推奨します。
-
-## その他関連情報
-
-### スレッド作成・レス作成のルール
-
-スレッド作成・レス作成時はどちらもコンテンツの入力が必須です。
-ユーザ名は任意ですが、名無しの場合は管理者画面で設定した名前が表示されます。
-ユーザ名に`#`を含めることで、`#`以降の文字列がトリップとして表示されます。
-
-### 専ブラ(ChMate)での登録方法
-
-`https://(ホスト)/senbura/`を URL に登録してください。
-
-正常に読み込まれると、以下のように表示されます。
-
-![専ブラ](./readme/senbura1.png)
-![専ブラ](./readme/senbura2.png)
+### 追加機能
+- タイムライン表示
+- ゴールドランキング
+- Madakana（規制情報表示）
+- BE (be.2ch.net) 連携
+- サーバー間連合 (Federation)
+- プラグインシステム (Hook type 1/2/4/8/16/32/64 + Patch)
+- ビルトインプラグイン（和暦表示/名無しランダム/オセロゲーム）
+- ブラウザフィンガープリント
+- マークダウン記法 + コンテンツ変換 (YouTube/NicoNico/Twitter埋め込み)
+- 画像アップロード (Imgur OAuth2)
+- VIP系ゲームコマンド (!IQ/!calc/!yakyu/!poke 等18種)
 
 ## 利用技術
 
-| パッケージ名               | バージョン | 説明                                                                                                                  |
-| :------------------------- | :--------- | :-------------------------------------------------------------------------------------------------------------------- |
-| `hono`                     | `^4.7.0`   | 軽量ウェブフレームワークで、Express や Koa に似ており、HTTP リクエストとレスポンスを処理。                            |
-| `honox`                    | `^0.1.34`  | Hono に基づくメタフレームワークで、Hono と Vite を使用したアプリケーション開発を簡素化。                              |
-| `postgres`                 | `^3.4.5`   | Node.js で PostgreSQL データベースとインタラクション。クエリやデータ操作に使用。                                      |
-| `neverthrow`               | `^8.1.1`   | Result 型を提供し、エラーを機能的に安全に処理。コードの信頼性と可読性を向上。                                         |
-| `uuidv7`                   | `^1.0.2`   | 時間ベースのバージョン 7 UUID を生成。アプリケーション内で一意の識別子を生成。                                        |
-| `bcrypt-ts`                | `^6.0.0`   | BCrypt アルゴリズムを使用したパスワードハッシュ化を TypeScript でサポート。パスワードの安全なハッシュ化と検証に使用。 |
-| `iconv-lite`               | `^0.6.3`   | 幅広い文字エンコーディングの変換をサポート。テキストデータのエンコーディング変換に使用。                              |
-| `encoding-japanese`        | `^2.2.0`   | 日本語文字エンコーディングの変換（例：Shift-JIS と UTF-8）を処理。テキストデータの多言語対応に役立つ。                |
-| `tailwindcss`              | `^4.0.5`   | ユーティリティファーストの CSS フレームワーク。迅速かつ一貫したスタイリングに使用。                                   |
-| `vite`                     | `^6.1.0`   | モダンウェブアプリケーションのビルドツール。ホットモジュールリプレイスメントと最適化を提供。                          |
-| `@tailwindcss/vite`        | `^4.0.5`   | Vite との Tailwind CSS 統合。迅速なスタイリングのためのユーティリティクラスを使用可能。                               |
-| `@ts-safeql/eslint-plugin` | `^3.6.6`   | PostgreSQL の生 SQL クエリから TypeScript 型を検証・自動生成する ESLint プラグイン。SQL クエリの型安全性を確保。      |
+| パッケージ | バージョン | 用途 |
+|-----------|-----------|------|
+| `hono` / `honox` | ^4.7 / ^0.1 | Webフレームワーク + メタフレームワーク |
+| `postgres` | ^3.4 | PostgreSQLドライバ |
+| `neverthrow` | ^8.2 | Result型エラーハンドリング |
+| `bcrypt-ts` | ^6.0 | パスワードハッシュ化 |
+| `tailwindcss` | ^4.0 | CSSフレームワーク |
+| `vite` | ^6.2 | ビルドツール |
+| `vitest` | ^3.1 | テストフレームワーク |
+| `wrangler` | ^4.0 | Cloudflare Workersデプロイ |
+| `iconv-lite` | ^0.6 | Shift_JIS変換（専ブラ対応） |
 
-## ロードマップ
+## アーキテクチャ
 
-- [x] コンテンツの最大長制限への対応 (medium)
-  - `createResponseContent`の非同期関数化  
-    高階関数パターンの導入
-- [x] パスワード更新機能の実装 (medium)
-- [x] レスの範囲を指定するページの追加
-- [ ] Config/Env をセットアップするシェルスクリプトの実装
-- [ ] 信頼できる IP アドレスを外部から設定できるようにする
-- [ ] https に対応するスクリプトの追加
-- [ ] NG ワード機能の実装
-- [ ] レス検索機能の実装
-- [ ] Cloudflare Captcha(turnstile)への対応
-- [ ] ログの出力
-  - [ ] 適切な粒度がわからないので見直しが必要
-- [ ] エラーハンドリングの見直し
-  - [ ] エラーと例外の分離
-- [ ] テストの記述
-  - [x] ドメイン層のテスト
-  - [ ] ユースケース層のテスト
-  - [ ] リポジトリ層のテスト
-- [ ] 複数板を扱う機能の実装(very hard)
-- [ ] ログイン機能の実装(very hard)
+```
+app/          # HonoX プレゼンテーション層（ルート/コンポーネント/アイランド）
+  routes/     #   ファイルベースルーティング
+  components/ #   JSXコンポーネント
+  islands/    #   クライアントサイドJS（ハイドレーション）
+  middlewares/ #   Honoミドルウェア
+src/          # ドメイン/アプリケーション層
+  config/     #   設定コンテキスト
+  conversation/ # スレッド/レスコンテキスト
+  * (40+ モジュール) # 各機能のドメイン/ユースケース/リポジトリ
+db/           # データベース（PostgreSQL）
+  migrations/ #   マイグレーション
+```
 
-## License
+## 専ブラ (ChMate) 登録方法
+
+`https://(ホスト)/senbura/` をURLに登録。
+
+## ライセンス
 
 MIT
 
 ## 開発者
 
-- [calloc134](https://github.com/calloc134)
+- [maebahesioru](https://github.com/maebahesioru)
+
+### ベース
+- [ex0ch](https://github.com/PrefKarafuto/ex0ch) - Perl版ゼロちゃんねるプラス派生
+- [calloc134/vakkarma-main](https://github.com/calloc134/vakkarma-main) - オリジナルのTypeScript版
