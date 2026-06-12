@@ -59,7 +59,14 @@ const isRequestedByFormElementRe =
 export const csrf = (options?: CSRFOptions): MiddlewareHandler => {
   const handler: IsAllowedOriginHandler = ((optsOrigin) => {
     if (!optsOrigin) {
-      return (origin, c) => origin === new URL(c.req.url).origin;
+      return (origin, c) => {
+        const forwardedProto = c.req.header("X-Forwarded-Proto");
+        const forwardedHost = c.req.header("X-Forwarded-Host");
+        if (forwardedProto && forwardedHost) {
+          return origin === `${forwardedProto}://${forwardedHost}`;
+        }
+        return origin === new URL(c.req.url).origin;
+      };
     } else if (typeof optsOrigin === "string") {
       return (origin) => origin === optsOrigin;
     } else if (typeof optsOrigin === "function") {
