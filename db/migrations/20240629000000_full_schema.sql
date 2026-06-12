@@ -132,7 +132,16 @@ CREATE TABLE config(
     update_available TEXT,
     max_lines INTEGER NOT NULL DEFAULT 30,
     max_line_width INTEGER NOT NULL DEFAULT 80,
-    max_anchors INTEGER NOT NULL DEFAULT 10
+    max_anchors INTEGER NOT NULL DEFAULT 10,
+    head_html TEXT NOT NULL DEFAULT '',
+    foot_html TEXT NOT NULL DEFAULT '',
+    meta_html TEXT NOT NULL DEFAULT '',
+    limitme_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    limitme_from INTEGER NOT NULL DEFAULT 0,
+    limitme_to INTEGER NOT NULL DEFAULT 0,
+    search_captcha_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    read_type TEXT NOT NULL DEFAULT '5ch',
+    auto_discover_threads BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 -- ############################################################
