@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kassanbbs",
+  "main": "./dist/index.js",
+  "compatibility_date": "2026-06-12",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "DATABASE_URL": "",
+    "JWT_SECRET_KEY": "",
+    "FEDERATION_SECRET": ""
+  }
+}

@@ -1,0 +1,293 @@
+import { ok, err } from "neverthrow";
+import { Result } from "neverthrow";
+
+import { DatabaseError, DataNotFoundError } from "../../shared/types/Error";
+import { createReadAuthorName } from "../domain/read/ReadAuthorName";
+import { createReadHashId } from "../domain/read/ReadHashId";
+import { createReadMail } from "../domain/read/ReadMail";
+import { createReadPostedAt } from "../domain/read/ReadPostedAt";
+import {
+  createReadResponse,
+  type ReadResponse,
+} from "../domain/read/ReadResponse";
+import { createReadResponseContent } from "../domain/read/ReadResponseContent";
+import { createReadResponseId } from "../domain/read/ReadResponseId";
+import { createReadResponseNumber } from "../domain/read/ReadResponseNumber";
+import { createReadThreadId } from "../domain/read/ReadThreadId";
+import { createReadThreadTitle } from "../domain/read/ReadThreadTitle";
+import {
+  createReadThreadWithResponses,
+  type ReadThreadWithResponses,
+} from "../domain/read/ReadThreadWithResponses";
+import { generateDailyId } from "../domain/read/ReadDailyId";
+import { createCapcode } from "../../cap/domain/read/ReadCapcode";
+import {
+  createThreadAttr,
+  type ThreadAttr,
+} from "../domain/read/ReadThreadAttr";
+
+import type { ValidationError } from "../../shared/types/Error";
+import type { VakContext } from "../../shared/types/VakContext";
+import type { WriteThreadEpochId } from "../domain/write/WriteThreadEpochId";
+
+// 指定されたスレッドのすべてのレスポンスを取得するだけのリポジトリ
+// 便宜上、スレッドタイトルも取得する
+export const getAllResponsesByThreadEpochIdRepository = async (
+  { sql, logger }: VakContext,
+  { threadEpochId }: { threadEpochId: WriteThreadEpochId }
+): Promise<
+  Result<
+    ReadThreadWithResponses,
+    DatabaseError | DataNotFoundError | ValidationError
+  >
+> => {
+  logger.debug({
+    operation: "getAllResponsesByThreadEpochId",
+    threadEpochId: threadEpochId.val,
+    message: "Fetching all responses for thread by epoch ID",
+  });
+
+  try {
+    const result = await sql<
+      {
+        id: string;
+        thread_id: string;
+        response_number: number;
+        author_name: string;
+        mail: string;
+        posted_at: Date;
+        response_content: string;
+        hash_id: string;
+        trip: string | null;
+        be_id: string | null;
+        title: string;
+        total_count: number | null;
+        attrs: ThreadAttr;
+      }[]
+    >`
+    WITH resp_count AS (
+      SELECT thread_id, COUNT(*)::int AS total_count 
+      FROM responses
+      WHERE thread_id IN (
+        SELECT id FROM threads WHERE epoch_id = ${threadEpochId.val}
+      )
+        AND is_deleted = FALSE
+      GROUP BY thread_id
+    )
+    SELECT
+      r.id,
+      r.thread_id,
+      r.response_number,
+      r.author_name,
+      r.mail,
+      r.posted_at,
+      r.response_content,
+      r.hash_id,
+      r.trip,
+      r.be_id,
+      t.title,
+      rc.total_count,
+      t.attrs
+    FROM responses AS r
+    JOIN threads AS t
+      ON r.thread_id = t.id
+    JOIN resp_count AS rc
+      ON rc.thread_id = r.thread_id
+    WHERE t.epoch_id = ${threadEpochId.val}
+      AND r.is_deleted = FALSE
+    ORDER BY r.response_number
+    `;
+
+    if (!result || result.length === 0) {
+      logger.info({
+        operation: "getAllResponsesByThreadEpochId",
+        threadEpochId: threadEpochId.val,
+        message: "No responses found for thread",
+      });
+      return err(new DataNotFoundError("レスポンスの取得に失敗しました"));
+    }
+
+    logger.debug({
+      operation: "getAllResponsesByThreadEpochId",
+      threadEpochId: threadEpochId.val,
+      responseCount: result.length,
+      message: "Successfully retrieved responses from database",
+    });
+
+    // 詰め替え部分
+    const threadIdResult = createReadThreadId(result[0].thread_id);
+    if (threadIdResult.isErr()) {
+      logger.error({
+        operation: "getAllResponsesByThreadEpochId",
+        threadEpochId: threadEpochId.val,
+        error: threadIdResult.error,
+        message: "Failed to create thread ID from database result",
+      });
+      return err(threadIdResult.error);
+    }
+
+    const threadId = threadIdResult.value;
+    const responses: ReadResponse[] = [];
+    for (const response of result) {
+      const combinedResult = Result.combine([
+        createReadResponseId(response.id),
+        createReadResponseNumber(response.response_number),
+        createReadAuthorName(response.author_name, response.trip, response.be_id),
+        createReadMail(response.mail),
+        createReadPostedAt(response.posted_at),
+        createReadResponseContent(response.response_content),
+        createReadHashId(response.hash_id),
+      ]);
+
+      if (combinedResult.isErr()) {
+        logger.error({
+          operation: "getAllResponsesByThreadEpochId",
+          threadEpochId: threadEpochId.val,
+          threadId: threadId.val,
+          responseId: response.id,
+          error: combinedResult.error,
+          message: "Failed to create domain objects from database result",
+        });
+        return err(combinedResult.error);
+      }
+
+      const [
+        responseId,
+        responseNumber,
+        authorName,
+        mail,
+        postedAt,
+        responseContent,
+        hashId,
+      ] = combinedResult.value;
+
+      const dailyId = generateDailyId(
+        hashId.val,
+        response.thread_id,
+        postedAt.val
+      );
+
+      let capcode: string | undefined;
+      if (response.trip) {
+        capcode = createCapcode(
+          authorName.val._type === "some"
+            ? authorName.val.authorName
+            : authorName.val.authorName,
+          response.trip
+        ) as string;
+      }
+
+      const responseResult = createReadResponse({
+        responseId,
+        threadId,
+        responseNumber,
+        authorName,
+        mail,
+        postedAt,
+        responseContent,
+        hashId,
+        dailyId,
+        capcode,
+      });
+
+      if (responseResult.isErr()) {
+        logger.error({
+          operation: "getAllResponsesByThreadEpochId",
+          threadEpochId: threadEpochId.val,
+          threadId: threadId.val,
+          responseId: responseId.val,
+          error: responseResult.error,
+          message: "Failed to create ReadResponse object",
+        });
+        return err(responseResult.error);
+      }
+
+      responses.push(responseResult.value);
+    }
+
+    // スレッドタイトルの取得とバリデーション
+    const firstResponse = result[0];
+    const threadTitleResult = createReadThreadTitle(firstResponse.title);
+    if (threadTitleResult.isErr()) {
+      logger.error({
+        operation: "getAllResponsesByThreadEpochId",
+        threadEpochId: threadEpochId.val,
+        threadId: threadId.val,
+        error: threadTitleResult.error,
+        message: "Failed to create thread title from database result",
+      });
+      return err(threadTitleResult.error);
+    }
+
+    const threadTitle = threadTitleResult.value;
+    if (!result[0].total_count) {
+      logger.error({
+        operation: "getAllResponsesByThreadEpochId",
+        threadEpochId: threadEpochId.val,
+        threadId: threadId.val,
+        message: "Total count is null",
+      });
+      return err(
+        new DataNotFoundError("スレッドのレスポンス数が取得できませんでした")
+      );
+    }
+    const totalCount = result[0].total_count;
+
+    const attrsResult = createThreadAttr(
+      (firstResponse.attrs as Record<string, unknown>) ?? {}
+    );
+    if (attrsResult.isErr()) {
+      logger.error({
+        operation: "getAllResponsesByThreadEpochId",
+        threadEpochId: threadEpochId.val,
+        error: attrsResult.error,
+        message: "Failed to parse thread attrs",
+      });
+      return err(attrsResult.error);
+    }
+
+    const threadWithResponsesResult = createReadThreadWithResponses(
+      threadId,
+      threadTitle,
+      totalCount,
+      responses,
+      attrsResult.value
+    );
+
+    if (threadWithResponsesResult.isErr()) {
+      logger.error({
+        operation: "getAllResponsesByThreadEpochId",
+        threadEpochId: threadEpochId.val,
+        threadId: threadId.val,
+        error: threadWithResponsesResult.error,
+        message: "Failed to create thread with responses object",
+      });
+      return err(threadWithResponsesResult.error);
+    }
+
+    logger.info({
+      operation: "getAllResponsesByThreadEpochId",
+      threadEpochId: threadEpochId.val,
+      threadId: threadId.val,
+      threadTitle: threadTitleResult.value.val,
+      responseCount: responses.length,
+      message: "Successfully fetched and processed all responses for thread",
+    });
+
+    return ok(threadWithResponsesResult.value);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    logger.error({
+      operation: "getAllResponsesByThreadEpochId",
+      threadEpochId: threadEpochId.val,
+      error,
+      message: `Database error while fetching responses: ${message}`,
+    });
+    return err(
+      new DatabaseError(
+        `レスポンス取得中にエラーが発生しました: ${message}`,
+        error
+      )
+    );
+  }
+};

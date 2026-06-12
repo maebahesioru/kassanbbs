@@ -1,0 +1,7 @@
+--migrate:up
+ALTER TABLE admin_logs ADD COLUMN IF NOT EXISTS log_type TEXT NOT NULL DEFAULT 'ADMIN';
+ALTER TABLE responses ADD COLUMN IF NOT EXISTS be_id TEXT;
+
+--migrate:down
+ALTER TABLE responses DROP COLUMN IF EXISTS be_id;
+ALTER TABLE admin_logs DROP COLUMN IF EXISTS log_type;
