@@ -1,0 +1,5 @@
+FROM amacneil/dbmate:latest
+
+COPY ./db/migrations /db/migrations
+
+CMD ["--migrations-dir", "/db/migrations", "up"]
