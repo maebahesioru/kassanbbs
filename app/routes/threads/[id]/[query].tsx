@@ -199,6 +199,9 @@ export default createRoute(async (c) => {
                       })}
                     </span>
                     <span className="text-gray-400 text-xs">
+                      ID:{resp.dailyId}
+                    </span>
+                    <span className="text-gray-400 text-xs">
                       {viewerSlip}
                     </span>
                   </div>
