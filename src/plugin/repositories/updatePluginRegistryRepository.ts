@@ -1,4 +1,5 @@
 import { err, ok } from "neverthrow";
+import { uuidv7 } from "uuidv7";
 
 import { DatabaseError } from "../../shared/types/Error";
 
@@ -60,8 +61,8 @@ export const rescanPluginsRepository = async (
     for (const bp of builtinPlugins) {
       if (!existingNames.includes(bp)) {
         await sql`
-          INSERT INTO plugin_registry(name, description, is_active, hook_type, config_json)
-          VALUES(${bp}, ${""}, ${true}, ${0}, ${"{}"}::jsonb)
+          INSERT INTO plugin_registry(id, name, description, is_active, hook_type, config_json)
+          VALUES(${uuidv7()}::uuid, ${bp}, ${""}, ${true}, ${0}, ${"{}"}::jsonb)
         `;
       }
     }

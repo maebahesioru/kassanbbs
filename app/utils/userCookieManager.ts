@@ -14,7 +14,7 @@ export type UserCookieData = {
 };
 
 const getCookieSecret = (c: Context): string => {
-  const secret = env<{ COOKIE_SECRET: string }>(c).COOKIE_SECRET;
+  const secret = env<{ COOKIE_SECRET: string }>(c).COOKIE_SECRET || (import.meta as any).env?.VITE_COOKIE_SECRET as string | undefined;
   if (!secret) throw new Error("COOKIE_SECRET not configured");
   return secret;
 };
