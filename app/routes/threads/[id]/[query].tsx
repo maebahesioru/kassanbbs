@@ -198,14 +198,6 @@ export default createRoute(async (c) => {
                           c.req.header("Accept-Language") ?? undefined,
                       })}
                     </span>
-                    {resp.dailyId && (
-                      <span className="text-gray-500 text-sm">
-                        ID: {resp.dailyId}
-                      </span>
-                    )}
-                    <span className="text-gray-500 text-sm">
-                      ID: {resp.dailyId || resp.hashId.val}
-                    </span>
                     <span className="text-gray-400 text-xs">
                       {viewerSlip}
                     </span>

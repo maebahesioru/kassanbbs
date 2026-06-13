@@ -137,11 +137,6 @@ export default createRoute(async (c) => {
                               c.req.header("Accept-Language") ?? undefined,
                           })}
                         </span>
-                        {resp.dailyId && (
-                          <span className="text-gray-500 text-sm">
-                            ID: {resp.dailyId}
-                          </span>
-                        )}
                       </div>
                       <div className="text-gray-800 max-h-80 overflow-y-auto whitespace-pre-wrap">
                         <ResponseContentComponent
