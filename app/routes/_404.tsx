@@ -1,14 +1,14 @@
-import type { NotFoundHandler } from "hono";
+﻿import type { NotFoundHandler } from "hono";
 
 const handler: NotFoundHandler = (c) => {
   return c.render(
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-purple-500 dark:text-purple-400 text-lg font-bold">404 Not Found</h1>
-      <p className="text-gray-700 dark:text-gray-300">存在しないページのようです。</p>
-      <p className="text-gray-700 dark:text-gray-300">URLを確認してください。</p>
+      <h1 className="text-purple-500 text-lg font-bold">404 Not Found</h1>
+      <p className="text-gray-700">存在しないページのようです。</p>
+      <p className="text-gray-700">URLを確認してください。</p>
       <button
         onClick={() => history.back()}
-        className="text-blue-500 dark:text-blue-400 hover:underline mt-4"
+        className="text-blue-500 hover:underline mt-4"
       >
         戻る
       </button>

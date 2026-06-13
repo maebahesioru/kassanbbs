@@ -103,7 +103,7 @@ export default function FormEnhance() {
       if (mailInput) {
         const mail = mailInput.value.trim();
         // Allow empty mail, sage, or @username format
-        const sageOrXIdOrEmpty = /^(?:sage|@[a-zA-Z0-9_]{1,30})?$/;
+        const sageOrXIdOrEmpty = /^(?:sage|@?[a-zA-Z0-9_]{1,30})?$/;
         if (mail && !sageOrXIdOrEmpty.test(mail)) {
           // Validate only if not empty
           e.preventDefault();

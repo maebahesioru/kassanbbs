@@ -1,4 +1,4 @@
-import { createRoute } from "honox/factory";
+﻿import { createRoute } from "honox/factory";
 
 import { getBoardsUsecase, createBoardUsecase, updateBoardUsecase, deleteBoardUsecase } from "../../../src/board/usecases/manageBoardsUsecase";
 import { addAdminLogUsecase } from "../../../src/adminlog/usecases/addAdminLogUsecase";
@@ -109,15 +109,15 @@ export default createRoute(async (c) => {
 
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
-      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+      <section className="bg-white rounded-lg shadow-md p-6 mb-8">
         <AdminNav currentPath="/admin/boards" />
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6">板管理</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">板管理</h1>
 
-        <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4">板一覧</h2>
+        <h2 className="text-xl font-semibold text-gray-700 mb-4">板一覧</h2>
         <div className="overflow-x-auto mb-8">
           <table className="min-w-full text-sm">
             <thead>
-              <tr className="bg-gray-100 dark:bg-gray-900">
+              <tr className="bg-gray-100">
                 <th className="p-2 text-left">キー</th>
                 <th className="p-2 text-left">板名</th>
                 <th className="p-2 text-left">カテゴリ</th>
@@ -134,14 +134,14 @@ export default createRoute(async (c) => {
                   <td className="p-2">{board.category}</td>
                   <td className="p-2">{board.sortOrder}</td>
                   <td className="p-2">
-                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${board.isActive ? "bg-green-100 text-green-800 dark:text-green-300" : "bg-red-100 text-red-800 dark:text-red-300"}`}>
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${board.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
                       {board.isActive ? "有効" : "無効"}
                     </span>
                   </td>
                   <td className="p-2">
                     <details className="inline-block">
-                      <summary className="text-purple-600 dark:text-purple-400 hover:underline cursor-pointer text-sm">編集</summary>
-                      <form method="post" action="/admin/boards" className="mt-2 flex flex-col gap-2 border p-3 rounded bg-gray-50 dark:bg-gray-800/50">
+                      <summary className="text-purple-600 hover:underline cursor-pointer text-sm">編集</summary>
+                      <form method="post" action="/admin/boards" className="mt-2 flex flex-col gap-2 border p-3 rounded bg-gray-50">
                         <input type="hidden" name="action" value="update" />
                         <input type="hidden" name="id" value={board.id} />
                         <div className="flex gap-2 items-center">
@@ -172,7 +172,7 @@ export default createRoute(async (c) => {
                           <label className="text-xs w-20">有効:</label>
                           <input type="checkbox" name="isActive" defaultChecked={board.isActive} className="h-4 w-4" />
                         </div>
-                        <button type="submit" className="bg-purple-500 dark:bg-purple-600 hover:bg-purple-700 dark:hover:bg-purple-800 text-white text-sm font-bold py-1 px-3 rounded">
+                        <button type="submit" className="bg-purple-500 hover:bg-purple-700 text-white text-sm font-bold py-1 px-3 rounded">
                           更新
                         </button>
                       </form>
@@ -180,7 +180,7 @@ export default createRoute(async (c) => {
                     <form method="post" action="/admin/boards" className="inline-block ml-2">
                       <input type="hidden" name="action" value="delete" />
                       <input type="hidden" name="id" value={board.id} />
-                      <button type="submit" className="text-red-600 dark:text-red-400 hover:underline text-sm">削除</button>
+                      <button type="submit" className="text-red-600 hover:underline text-sm">削除</button>
                     </form>
                   </td>
                 </tr>
@@ -189,38 +189,38 @@ export default createRoute(async (c) => {
           </table>
         </div>
 
-        <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4">新規板作成</h2>
+        <h2 className="text-xl font-semibold text-gray-700 mb-4">新規板作成</h2>
         <form method="post" action="/admin/boards" className="flex flex-col gap-3 max-w-lg">
           <input type="hidden" name="action" value="create" />
           <div className="flex flex-col">
-            <label className="text-gray-700 dark:text-gray-300 text-sm font-bold mb-1">板キー (英数字)</label>
-            <input type="text" name="boardKey" required pattern="[a-zA-Z0-9_]+" className="border border-gray-400 dark:border-gray-600 rounded py-2 px-3" />
+            <label className="text-gray-700 text-sm font-bold mb-1">板キー (英数字)</label>
+            <input type="text" name="boardKey" required pattern="[a-zA-Z0-9_]+" className="border border-gray-400 rounded py-2 px-3" />
           </div>
           <div className="flex flex-col">
-            <label className="text-gray-700 dark:text-gray-300 text-sm font-bold mb-1">板名</label>
-            <input type="text" name="boardName" required className="border border-gray-400 dark:border-gray-600 rounded py-2 px-3" />
+            <label className="text-gray-700 text-sm font-bold mb-1">板名</label>
+            <input type="text" name="boardName" required className="border border-gray-400 rounded py-2 px-3" />
           </div>
           <div className="flex flex-col">
-            <label className="text-gray-700 dark:text-gray-300 text-sm font-bold mb-1">カテゴリ</label>
-            <input type="text" name="category" className="border border-gray-400 dark:border-gray-600 rounded py-2 px-3" />
+            <label className="text-gray-700 text-sm font-bold mb-1">カテゴリ</label>
+            <input type="text" name="category" className="border border-gray-400 rounded py-2 px-3" />
           </div>
           <div className="flex flex-col">
-            <label className="text-gray-700 dark:text-gray-300 text-sm font-bold mb-1">サブタイトル</label>
-            <input type="text" name="subtitle" className="border border-gray-400 dark:border-gray-600 rounded py-2 px-3" />
+            <label className="text-gray-700 text-sm font-bold mb-1">サブタイトル</label>
+            <input type="text" name="subtitle" className="border border-gray-400 rounded py-2 px-3" />
           </div>
           <div className="flex flex-col">
-            <label className="text-gray-700 dark:text-gray-300 text-sm font-bold mb-1">ローカルルール</label>
-            <input type="text" name="localRule" className="border border-gray-400 dark:border-gray-600 rounded py-2 px-3" />
+            <label className="text-gray-700 text-sm font-bold mb-1">ローカルルール</label>
+            <input type="text" name="localRule" className="border border-gray-400 rounded py-2 px-3" />
           </div>
           <div className="flex flex-col">
-            <label className="text-gray-700 dark:text-gray-300 text-sm font-bold mb-1">名無し名</label>
-            <input type="text" name="nanashiName" value="名無しさん" className="border border-gray-400 dark:border-gray-600 rounded py-2 px-3" />
+            <label className="text-gray-700 text-sm font-bold mb-1">名無し名</label>
+            <input type="text" name="nanashiName" value="名無しさん" className="border border-gray-400 rounded py-2 px-3" />
           </div>
           <div className="flex flex-col">
-            <label className="text-gray-700 dark:text-gray-300 text-sm font-bold mb-1">表示順</label>
-            <input type="number" name="sortOrder" value="0" className="border border-gray-400 dark:border-gray-600 rounded py-2 px-3 w-24" />
+            <label className="text-gray-700 text-sm font-bold mb-1">表示順</label>
+            <input type="number" name="sortOrder" value="0" className="border border-gray-400 rounded py-2 px-3 w-24" />
           </div>
-          <button type="submit" className="bg-purple-500 dark:bg-purple-600 hover:bg-purple-700 dark:hover:bg-purple-800 text-white font-bold py-2 px-4 rounded w-40">
+          <button type="submit" className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-40">
             作成
           </button>
         </form>

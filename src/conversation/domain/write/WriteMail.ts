@@ -10,7 +10,7 @@ export type WriteMail = {
   readonly val: string;
 };
 
-const isXId = (value: string): boolean => /^@[a-zA-Z0-9_]{1,30}$/.test(value);
+const isXId = (value: string): boolean => /^@?[a-zA-Z0-9_]{1,30}$/.test(value);
 
 export const createWriteMail = (
   value: string | null
@@ -22,7 +22,7 @@ export const createWriteMail = (
     return err(new ValidationError("X IDは255文字以内です"));
   }
   if (value !== "" && value.toLowerCase() !== "sage" && !isXId(value)) {
-    return err(new ValidationError("X IDは@から始めてください（例: @username）"));
+    return err(new ValidationError("X IDの形式が正しくありません"));
   }
   return ok({ _type: "WriteMail", val: value });
 };

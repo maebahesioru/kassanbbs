@@ -1,4 +1,4 @@
-import { createRoute } from "honox/factory";
+﻿import { createRoute } from "honox/factory";
 
 import { formatReadAuthorName } from "../../../src/conversation/domain/read/ReadAuthorName";
 import { isSage } from "../../../src/conversation/domain/write/WriteMail";
@@ -208,7 +208,7 @@ export default createRoute(async (c) => {
 
   if (!sql) {
     c.status(500);
-    return c.render(<div className="text-red-500 dark:text-red-400">DB connection failed</div>);
+    return c.render(<div className="text-red-500">DB connection failed</div>);
   }
 
   const configResult = await getNormalConfigUsecase({ sql, logger });
@@ -224,13 +224,13 @@ export default createRoute(async (c) => {
     limitmeTo: config?.limitmeTo ?? 0,
   })) {
     c.status(403);
-    return c.render(<div className="text-red-500 dark:text-red-400">現在閲覧制限中です</div>);
+    return c.render(<div className="text-red-500">現在閲覧制限中です</div>);
   }
 
   const threadEpochIdResult = createWriteThreadEpochId(key);
   if (threadEpochIdResult.isErr()) {
     c.status(404);
-    return c.render(<div className="text-red-500 dark:text-red-400">スレッドが見つかりません</div>);
+    return c.render(<div className="text-red-500">スレッドが見つかりません</div>);
   }
 
   let threadId: string | null = null;
@@ -269,24 +269,24 @@ export default createRoute(async (c) => {
               <title>スレッド検索結果 - {bbs}</title>
               <link rel="stylesheet" href="/app/style.css" />
             </head>
-            <body className="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            <body className="bg-gray-100 text-gray-800">
               <div className="container mx-auto px-2 py-4 max-w-4xl">
-                <div className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 mb-2">
-                  <a href="/" className="text-blue-600 dark:text-blue-400 hover:underline">Home</a>
+                <div className="text-xs text-gray-500 mb-2">
+                  <a href="/" className="text-blue-600 hover:underline">Home</a>
                   &gt; <span>{bbs}</span>
                 </div>
-                <h1 className="text-lg font-bold text-purple-700 dark:text-purple-300 mb-4">以下のスレッドが見つかりました</h1>
+                <h1 className="text-lg font-bold text-purple-700 mb-4">以下のスレッドが見つかりました</h1>
 
                 {allFound.length > 0 && (
                   <>
-                    <h2 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-2">スレッド一覧</h2>
+                    <h2 className="text-md font-semibold text-gray-700 mb-2">スレッド一覧</h2>
                     <ul className="space-y-1 mb-4">
                       {allFound.map((t) => (
                         <li key={t.id}>
-                          <a href={`/test/read.cgi/${bbs}/${t.epoch_id}/l50`} className="text-blue-600 dark:text-blue-400 hover:underline">
+                          <a href={`/test/read.cgi/${bbs}/${t.epoch_id}/l50`} className="text-blue-600 hover:underline">
                             {t.title}
                           </a>
-                          <span className="text-gray-400 dark:text-gray-500 text-xs ml-2">({formatDate(t.updated_at)})</span>
+                          <span className="text-gray-400 text-xs ml-2">({formatDate(t.updated_at)})</span>
                         </li>
                       ))}
                     </ul>
@@ -295,14 +295,14 @@ export default createRoute(async (c) => {
 
                 {writeLogs.length > 0 && (
                   <>
-                    <h2 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-2">最近の書き込み</h2>
+                    <h2 className="text-md font-semibold text-gray-700 mb-2">最近の書き込み</h2>
                     <ul className="space-y-1">
                       {writeLogs.map((w) => (
                         <li key={`${w.thread_id}-${w.response_number}`}>
-                          <a href={`/threads/${w.thread_id}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+                          <a href={`/threads/${w.thread_id}`} className="text-blue-600 hover:underline">
                             {w.author_name} (#{w.response_number})
                           </a>
-                          <span className="text-gray-400 dark:text-gray-500 text-xs ml-2">({formatDate(w.posted_at)})</span>
+                          <span className="text-gray-400 text-xs ml-2">({formatDate(w.posted_at)})</span>
                         </li>
                       ))}
                     </ul>
@@ -315,7 +315,7 @@ export default createRoute(async (c) => {
       }
     }
     c.status(404);
-    return c.render(<div className="text-red-500 dark:text-red-400">スレッドが見つかりません</div>);
+    return c.render(<div className="text-red-500">スレッドが見つかりません</div>);
   }
 
   const options = parseOptions(queryString);
@@ -361,7 +361,7 @@ export default createRoute(async (c) => {
 
   if (responsesResult.isErr()) {
     c.status(404);
-    return c.render(<div className="text-red-500 dark:text-red-400">{responsesResult.error.message}</div>);
+    return c.render(<div className="text-red-500">{responsesResult.error.message}</div>);
   }
 
   const data = responsesResult.value;
@@ -399,46 +399,46 @@ export default createRoute(async (c) => {
         <meta name="twitter:card" content="summary" />
         <link rel="stylesheet" href="/app/style.css" />
       </head>
-      <body className="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+      <body className="bg-gray-100 text-gray-800">
         <div className="container mx-auto px-2 py-4 max-w-4xl">
-          <div className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 mb-2 flex gap-2">
-            <a href="/" className="text-blue-600 dark:text-blue-400 hover:underline">Home</a>
+          <div className="text-xs text-gray-500 mb-2 flex gap-2">
+            <a href="/" className="text-blue-600 hover:underline">Home</a>
             &gt;
             <span>{bbs}</span>
             &gt;
-            <a href={`/test/read.cgi/${bbs}/${key}/l50`} className="text-blue-600 dark:text-blue-400 hover:underline">{data.thread.threadTitle.val}</a>
+            <a href={`/test/read.cgi/${bbs}/${key}/l50`} className="text-blue-600 hover:underline">{data.thread.threadTitle.val}</a>
           </div>
 
           {reserveNear && (
-            <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-400 text-yellow-800 dark:text-yellow-300 px-3 py-2 rounded mb-2 text-sm font-bold">
+            <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-3 py-2 rounded mb-2 text-sm font-bold">
               このスレッドはもうすぐ容量がいっぱいになります。
             </div>
           )}
           {reserveWarn && (
-            <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 text-red-800 dark:text-red-300 px-3 py-2 rounded mb-2 text-sm font-bold">
+            <div className="bg-red-100 border border-red-400 text-red-800 px-3 py-2 rounded mb-2 text-sm font-bold">
               このスレッドは容量がいっぱいです。新しいスレッドを立ててください。
             </div>
           )}
 
           <div className="text-center mb-2">
-            <h1 className="text-lg font-bold text-purple-700 dark:text-purple-300">{data.thread.threadTitle.val}</h1>
-            <span className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">({responseCount})</span>
+            <h1 className="text-lg font-bold text-purple-700">{data.thread.threadTitle.val}</h1>
+            <span className="text-sm text-gray-500">({responseCount})</span>
           </div>
 
           <div className="flex flex-wrap gap-1 mb-3 text-xs">
             {pageChunks.slice(0, 20).map((chunk) => (
-              <a key={chunk.label} href={chunk.href} className="text-blue-600 dark:text-blue-400 hover:underline px-1 border-r border-gray-300 last:border-r-0">
+              <a key={chunk.label} href={chunk.href} className="text-blue-600 hover:underline px-1 border-r border-gray-300 last:border-r-0">
                 {chunk.label}
               </a>
             ))}
           </div>
 
           <div className="flex gap-2 mb-3 text-xs">
-            <a href={`/test/read.cgi/${bbs}/${key}/1-100`} className="text-blue-600 dark:text-blue-400 hover:underline">1-100</a>
-            <a href={`/test/read.cgi/${bbs}/${key}/101-200`} className="text-blue-600 dark:text-blue-400 hover:underline">101-200</a>
-            <a href={`/test/read.cgi/${bbs}/${key}/l50`} className="text-blue-600 dark:text-blue-400 hover:underline">最新50</a>
-            <a href={`/test/read.cgi/${bbs}/${key}/${latestNumber}-`} className="text-blue-600 dark:text-blue-400 hover:underline">最新</a>
-            <a href={`/test/read.cgi/${bbs}/${key}/nofirst`} className="text-blue-600 dark:text-blue-400 hover:underline">nofirst</a>
+            <a href={`/test/read.cgi/${bbs}/${key}/1-100`} className="text-blue-600 hover:underline">1-100</a>
+            <a href={`/test/read.cgi/${bbs}/${key}/101-200`} className="text-blue-600 hover:underline">101-200</a>
+            <a href={`/test/read.cgi/${bbs}/${key}/l50`} className="text-blue-600 hover:underline">最新50</a>
+            <a href={`/test/read.cgi/${bbs}/${key}/${latestNumber}-`} className="text-blue-600 hover:underline">最新</a>
+            <a href={`/test/read.cgi/${bbs}/${key}/nofirst`} className="text-blue-600 hover:underline">nofirst</a>
           </div>
 
           <div className={`space-y-1 ${readType === "5ch" ? "font-sans" : ""}`}>
@@ -455,16 +455,16 @@ export default createRoute(async (c) => {
 
               if (readType === "5ch") {
                 return (
-                  <div key={resp.responseNumber.val} id={String(resp.responseNumber.val)} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-2 mb-1">
+                  <div key={resp.responseNumber.val} id={String(resp.responseNumber.val)} className="bg-white border border-gray-200 p-2 mb-1">
                     <div className="flex flex-wrap items-baseline gap-x-2 text-sm">
-                      <span className="font-bold text-purple-700 dark:text-purple-300">{resp.responseNumber.val}</span>
+                      <span className="font-bold text-purple-700">{resp.responseNumber.val}</span>
                       <span className={`${isSage(resp.mail) ? "text-violet-600" : ""}`} style={{ color: resp.authorName.val.color || nameColor }}>
                         {formatReadAuthorName(resp.authorName, resp.capcode)}
                       </span>
-                      <span className="text-gray-400 dark:text-gray-500 text-xs">{formatDate(resp.postedAt.val, { acceptLanguage: c.req.header("Accept-Language") ?? undefined })}</span>
-                      {resp.dailyId && <span className="text-gray-400 dark:text-gray-500 text-xs">ID:{resp.dailyId}</span>}
-                      <span className="text-gray-400 dark:text-gray-500 text-xs">ID:{resp.dailyId || resp.hashId.val}</span>
-                      <span className="text-gray-400 dark:text-gray-500 text-xs">{viewerSlip}</span>
+                      <span className="text-gray-400 text-xs">{formatDate(resp.postedAt.val, { acceptLanguage: c.req.header("Accept-Language") ?? undefined })}</span>
+                      {resp.dailyId && <span className="text-gray-400 text-xs">ID:{resp.dailyId}</span>}
+                      <span className="text-gray-400 text-xs">ID:{resp.dailyId || resp.hashId.val}</span>
+                      <span className="text-gray-400 text-xs">{viewerSlip}</span>
                     </div>
                     <div className="text-sm mt-1 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderedContent) }} />
                   </div>
@@ -472,15 +472,15 @@ export default createRoute(async (c) => {
               }
 
               return (
-                <dl key={resp.responseNumber.val} id={String(resp.responseNumber.val)} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-2 mb-1">
+                <dl key={resp.responseNumber.val} id={String(resp.responseNumber.val)} className="bg-white border border-gray-200 p-2 mb-1">
                   <dt className="flex flex-wrap items-baseline gap-x-2 text-sm">
-                    <span className="font-bold text-purple-700 dark:text-purple-300">{resp.responseNumber.val}</span>
+                    <span className="font-bold text-purple-700">{resp.responseNumber.val}</span>
                     <span className={`${isSage(resp.mail) ? "text-violet-600" : ""}`} style={{ color: resp.authorName.val.color || nameColor }}>
                       {formatReadAuthorName(resp.authorName, resp.capcode)}
                     </span>
-                    <span className="text-gray-400 dark:text-gray-500 text-xs">{formatDate(resp.postedAt.val, { acceptLanguage: c.req.header("Accept-Language") ?? undefined })}</span>
-                    {resp.dailyId && <span className="text-gray-400 dark:text-gray-500 text-xs">ID:{resp.dailyId}</span>}
-                    <span className="text-gray-400 dark:text-gray-500 text-xs">ID:{resp.dailyId || resp.hashId.val}</span>
+                    <span className="text-gray-400 text-xs">{formatDate(resp.postedAt.val, { acceptLanguage: c.req.header("Accept-Language") ?? undefined })}</span>
+                    {resp.dailyId && <span className="text-gray-400 text-xs">ID:{resp.dailyId}</span>}
+                    <span className="text-gray-400 text-xs">ID:{resp.dailyId || resp.hashId.val}</span>
                   </dt>
                   <dd className="text-sm mt-1 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderedContent) }} />
                 </dl>
@@ -489,54 +489,54 @@ export default createRoute(async (c) => {
           </div>
 
           <div className="flex gap-2 mt-3 mb-4 text-xs">
-            <a href={`/test/read.cgi/${bbs}/${key}/1-100`} className="text-blue-600 dark:text-blue-400 hover:underline">1-100</a>
-            <a href={`/test/read.cgi/${bbs}/${key}/101-200`} className="text-blue-600 dark:text-blue-400 hover:underline">101-200</a>
-            <a href={`/test/read.cgi/${bbs}/${key}/l50`} className="text-blue-600 dark:text-blue-400 hover:underline">最新50</a>
-            <a href={`/test/read.cgi/${bbs}/${key}/${latestNumber}-`} className="text-blue-600 dark:text-blue-400 hover:underline">最新</a>
-            <a href={`/test/read.cgi/${bbs}/${key}/nofirst`} className="text-blue-600 dark:text-blue-400 hover:underline">nofirst</a>
+            <a href={`/test/read.cgi/${bbs}/${key}/1-100`} className="text-blue-600 hover:underline">1-100</a>
+            <a href={`/test/read.cgi/${bbs}/${key}/101-200`} className="text-blue-600 hover:underline">101-200</a>
+            <a href={`/test/read.cgi/${bbs}/${key}/l50`} className="text-blue-600 hover:underline">最新50</a>
+            <a href={`/test/read.cgi/${bbs}/${key}/${latestNumber}-`} className="text-blue-600 hover:underline">最新</a>
+            <a href={`/test/read.cgi/${bbs}/${key}/nofirst`} className="text-blue-600 hover:underline">nofirst</a>
           </div>
 
           <div className="flex gap-2 mb-4 text-xs">
             {Math.max(1, latestNumber - 100) > 1 && (
-              <a href={`/test/read.cgi/${bbs}/${key}/${Math.max(1, latestNumber - 199)}-${Math.max(100, latestNumber - 100)}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+              <a href={`/test/read.cgi/${bbs}/${key}/${Math.max(1, latestNumber - 199)}-${Math.max(100, latestNumber - 100)}`} className="text-blue-600 hover:underline">
                 前の100件
               </a>
             )}
             {latestNumber < responseCount && (
-              <a href={`/test/read.cgi/${bbs}/${key}/${latestNumber + 1}-${Math.min(responseCount, latestNumber + 100)}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+              <a href={`/test/read.cgi/${bbs}/${key}/${latestNumber + 1}-${Math.min(responseCount, latestNumber + 100)}`} className="text-blue-600 hover:underline">
                 次の100件
               </a>
             )}
           </div>
 
-          <div className="bg-gray-200 dark:bg-gray-700 text-center py-2 mb-4">
+          <div className="bg-gray-200 text-center py-2 mb-4">
             <img src={`https://counter.ofuda.cc/count/${encodeURIComponent(`${bbs}-${key}`)}`} alt="counter" className="inline-block" />
           </div>
 
-          <section className="bg-white dark:bg-gray-800 border border-gray-300 p-4 mb-4">
+          <section className="bg-white border border-gray-300 p-4 mb-4">
             <h2 className="text-sm font-bold mb-3">書き込む</h2>
             <form method="post" action={`/test/read.cgi/${bbs}/${key}`} className="flex flex-col gap-3" encType="application/x-www-form-urlencoded; charset=Shift_JIS">
               <div className="flex gap-3">
-                <label className="text-xs text-gray-700 dark:text-gray-300">名前:
-                  <input type="text" name="FROM" value={userCookie.name} className="border border-gray-400 dark:border-gray-600 rounded py-1 px-2 text-sm w-40" />
+                <label className="text-xs text-gray-700">名前:
+                  <input type="text" name="FROM" value={userCookie.name} className="border border-gray-400 rounded py-1 px-2 text-sm w-40" />
                 </label>
-                <label className="text-xs text-gray-700 dark:text-gray-300">X ID:
-                  <input type="text" name="mail" value={userCookie.mail} placeholder="@username" className="border border-gray-400 dark:border-gray-600 rounded py-1 px-2 text-sm w-40" />
+                <label className="text-xs text-gray-700">X ID:
+                  <input type="text" name="mail" value={userCookie.mail} placeholder="@username" className="border border-gray-400 rounded py-1 px-2 text-sm w-40" />
                 </label>
               </div>
               <div>
-                <textarea name="MESSAGE" required className="border border-gray-400 dark:border-gray-600 rounded w-full py-1 px-2 text-sm h-24"></textarea>
+                <textarea name="MESSAGE" required className="border border-gray-400 rounded w-full py-1 px-2 text-sm h-24"></textarea>
               </div>
-              <button type="submit" className="bg-purple-500 dark:bg-purple-600 hover:bg-purple-700 dark:hover:bg-purple-800 text-white text-sm font-bold py-1 px-4 rounded w-24">
+              <button type="submit" className="bg-purple-500 hover:bg-purple-700 text-white text-sm font-bold py-1 px-4 rounded w-24">
                 書き込む
               </button>
             </form>
           </section>
 
-          <div className="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">
-            <a href={`/threads/${threadId}`} className="text-blue-600 dark:text-blue-400 hover:underline">標準表示</a>
+          <div className="text-center text-xs text-gray-400 mt-4">
+            <a href={`/threads/${threadId}`} className="text-blue-600 hover:underline">標準表示</a>
             {" | "}
-            <a href={`/test/read.cgi/${bbs}/${key}/l50`} className="text-blue-600 dark:text-blue-400 hover:underline">read.cgi</a>
+            <a href={`/test/read.cgi/${bbs}/${key}/l50`} className="text-blue-600 hover:underline">read.cgi</a>
           </div>
         </div>
       </body>

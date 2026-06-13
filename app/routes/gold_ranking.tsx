@@ -1,4 +1,4 @@
-import { createRoute } from "honox/factory";
+﻿import { createRoute } from "honox/factory";
 
 import { getGoldRankingUsecase } from "../../src/gold/usecases/goldRankingUsecase";
 import { ErrorMessage } from "../components/ErrorMessage";
@@ -16,10 +16,10 @@ export default createRoute(async (c) => {
 
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold mb-4">ゴールドランキング</h1>
         {entries.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-400">ランキングデータがありません</p>
+          <p className="text-gray-500">ランキングデータがありません</p>
         ) : (
           <table className="w-full border-collapse">
             <thead>
@@ -31,7 +31,7 @@ export default createRoute(async (c) => {
             </thead>
             <tbody>
               {entries.map((entry) => (
-                <tr key={entry.hashId} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <tr key={entry.hashId} className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="py-2 px-2 font-bold">{entry.rank}</td>
                   <td className="py-2 px-2 font-mono text-sm">{entry.hashId}</td>
                   <td className="py-2 px-2 text-right font-bold text-amber-600">{entry.gold.toLocaleString()}</td>

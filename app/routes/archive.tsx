@@ -1,4 +1,4 @@
-import { createRoute } from "honox/factory";
+﻿import { createRoute } from "honox/factory";
 
 import { getArchivedThreadsUsecase } from "../../src/archive/usecases/getArchivedThreadsUsecase";
 import { ErrorMessage } from "../components/ErrorMessage";
@@ -38,7 +38,7 @@ export default createRoute(async (c) => {
 
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
-      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+      <section className="bg-white rounded-lg shadow-md p-6 mb-8">
         <h1 className="text-2xl font-bold mb-4">過去ログ倉庫</h1>
 
         <p className="mb-4">
@@ -49,7 +49,7 @@ export default createRoute(async (c) => {
           {threads.map((thread, index) => (
             <li key={thread.id.val}>
               <a
-                className="text-purple-600 dark:text-purple-400 hover:underline"
+                className="text-purple-600 hover:underline"
                 href={`/threads/${thread.id.val}/l50`}
               >
                 {index + 1}: {thread.title.val} ({thread.countResponse})
@@ -59,7 +59,7 @@ export default createRoute(async (c) => {
         </ul>
 
         <div className="mt-6">
-          <a href="/subback.html" className="text-blue-600 dark:text-blue-400 hover:underline">
+          <a href="/subback.html" className="text-blue-600 hover:underline">
             スレッド一覧に戻る
           </a>
         </div>

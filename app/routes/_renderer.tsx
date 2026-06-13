@@ -13,7 +13,6 @@ import { ErrorMessage } from "../components/ErrorMessage";
 import { getIpAddress } from "../utils/getIpAddress";
 import ImageOverlay from "../islands/ImageOverlay";
 import MobileMenu from "../islands/MobileMenu";
-import DarkModeToggle from "../islands/DarkModeToggle";
 
 export default jsxRenderer(async ({ children }) => {
   const c = useRequestContext();
@@ -115,11 +114,6 @@ export default jsxRenderer(async ({ children }) => {
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){var d=localStorage.getItem("darkMode");if(d==="true"||(d===null&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")})()`,
-          }}
-        />
         <title>{configResult.value.boardName.val}</title>
         <Link href="/app/style.css" rel="stylesheet" />
         <Script src="/app/client.ts" />
@@ -144,7 +138,7 @@ export default jsxRenderer(async ({ children }) => {
         backgroundColor: bgColor,
         color: textColor,
       }}>
-        <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 font-aahub-light4">
+        <div className="flex flex-col min-h-screen bg-gray-100 font-aahub-light4">
           <header className="bg-gradient-to-r from-purple-500 to-orange-200 text-white w-full py-4 px-6">
             <div className="container mx-auto flex items-center justify-between">
               <div>
@@ -190,7 +184,6 @@ export default jsxRenderer(async ({ children }) => {
                   <a href="/gold_ranking" className="hover:underline">ゴールドランキング</a>
                   <a href="/madakana" className="hover:underline">規制情報</a>
                   <a href="/admin" className="hover:underline">管理</a>
-                  <DarkModeToggle />
                 </nav>
               </div>
               <button id="mobile-menu-toggle" className="md:hidden flex flex-col gap-1 p-2">
@@ -209,13 +202,12 @@ export default jsxRenderer(async ({ children }) => {
                 <a href="/gold_ranking" className="hover:underline">ゴールドランキング</a>
                 <a href="/madakana" className="hover:underline">規制情報</a>
                 <a href="/admin" className="hover:underline">管理</a>
-                <DarkModeToggle />
               </nav>
             </div>
           </header>
 
           {banners.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white border-b border-gray-200">
               <div className="container mx-auto py-3 px-4">
                 <div className="flex flex-wrap gap-3 justify-center">
                   {banners.map((banner) => (
@@ -250,12 +242,12 @@ export default jsxRenderer(async ({ children }) => {
           )}
 
           {notices.length > 0 && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/30 border-b border-yellow-200 dark:border-yellow-800">
+            <div className="bg-yellow-50 border-b border-yellow-200">
               <div className="container mx-auto py-3 px-4">
                 {notices.map((notice) => (
                   <div key={notice.title} className="mb-1 last:mb-0">
-                    <strong className="text-yellow-800 dark:text-yellow-300">{notice.title}:</strong>{" "}
-                    <span className="text-yellow-700 dark:text-yellow-200">{notice.content}</span>
+                    <strong className="text-yellow-800">{notice.title}:</strong>{" "}
+                    <span className="text-yellow-700">{notice.content}</span>
                   </div>
                 ))}
               </div>
@@ -265,7 +257,7 @@ export default jsxRenderer(async ({ children }) => {
           {children}
           <ImageOverlay />
         </div>
-        <footer className="text-center text-xs text-gray-500 dark:text-gray-400 py-4">
+        <footer className="text-center text-xs text-gray-500 py-4">
           {VAK_VERSION_DISPLAY}
         </footer>
         {footHtml && raw(footHtml)}
