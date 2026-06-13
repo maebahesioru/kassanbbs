@@ -32,6 +32,21 @@ const PERMISSION_LABELS: Record<string, string> = {
   "banners.manage": "バナー管理",
   "plugins.manage": "プラグイン管理",
   "super": "全権限(スーパー)",
+  "reg.samba": "Samba規制解除",
+  "reg.notimepost": "時間制限解除",
+  "reg.nguser": "ユーザー規制解除",
+  "reg.ngword": "NGワード規制解除",
+  "reg.noattr": "属性制限解除",
+  "reg.noninja": "忍法帖規制解除",
+  "reg.command": "コマンド実行権限",
+  "reg.nocaptcha": "Captcha免除",
+  "reg.noban": "BAN不可",
+  "reg.threadstop": "スレッド停止権限",
+  "reg.threadpool": "スレッドプール権限",
+  "reg.threaddelete": "スレッド削除権限",
+  "reg.threadarchive": "スレッドアーカイブ権限",
+  "reg.nohost": "ホスト規制解除",
+  "reg.bgdsl": "BGDSL規制解除",
 };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
