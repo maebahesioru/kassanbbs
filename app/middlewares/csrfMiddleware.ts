@@ -16,9 +16,9 @@ export const csrf = (options?: CSRFOptions): MiddlewareHandler => {
     if (!optsOrigin) {
       return (origin, c) => {
         const host = c.req.header("host");
-        const forwardedProto = c.req.header("X-Forwarded-Proto") || "https";
+        const proto = c.req.header("X-Forwarded-Proto") || new URL(c.req.url).protocol.slice(0, -1);
         if (host) {
-          return origin === `${forwardedProto}://${host}`;
+          return origin === `${proto}://${host}`;
         }
         return origin === new URL(c.req.url).origin;
       };

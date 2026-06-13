@@ -204,7 +204,7 @@ export default createRoute(async (c) => {
                       </span>
                     )}
                     <span className="text-gray-500 text-sm">
-                      ID: {resp.hashId.val}
+                      ID: {resp.dailyId || resp.hashId.val}
                     </span>
                     <span className="text-gray-400 text-xs">
                       {viewerSlip}
@@ -276,11 +276,12 @@ export default createRoute(async (c) => {
                 />
               </label>
               <label className="block text-gray-700 text-sm font-bold mb-2 md:w-1/2">
-                メールアドレス:
+                X ID:
                 <input
-                  type="email"
+                  type="text"
                   name="mail"
                   value={userCookie.mail}
+                  placeholder="@username"
                   className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </label>

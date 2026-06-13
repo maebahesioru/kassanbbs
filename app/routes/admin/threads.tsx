@@ -11,6 +11,7 @@ import { unarchiveThreadUsecase } from "../../../src/archive/usecases/unarchiveT
 import { updateThreadAttrsUsecase } from "../../../src/conversation/usecases/updateThreadAttrsUsecase";
 import { addAdminLogUsecase } from "../../../src/adminlog/usecases/addAdminLogUsecase";
 import { ErrorMessage } from "../../components/ErrorMessage";
+import { AdminNav } from "../../components/AdminNav";
 import { getIpAddress } from "../../utils/getIpAddress";
 import { formatDate } from "../../../src/shared/utils/formatDate";
 import { requirePermission } from "../../middlewares/requirePermissionMiddleware";
@@ -207,16 +208,7 @@ export default createRoute(async (c) => {
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
       <section className="bg-white rounded-lg shadow-md p-6">
-        <nav className="flex gap-4 mb-6 flex-wrap">
-          <a href="/admin" className="text-purple-600 hover:underline">基本設定</a>
-          <a href="/admin/ngwords" className="text-purple-600 hover:underline">NGワード</a>
-          <a href="/admin/iprestrictions" className="text-purple-600 hover:underline">IP制限</a>
-          <a href="/admin/threads" className="text-purple-600 hover:underline font-semibold">スレッド管理</a>
-          <a href="/admin/users" className="text-purple-600 hover:underline">ユーザー管理</a>
-          <a href="/admin/groups" className="text-purple-600 hover:underline">グループ管理</a>
-          <a href="/admin/password" className="text-purple-600 hover:underline">パスワード変更</a>
-          <a href="/admin/autodelete" className="text-purple-600 hover:underline">自動削除設定</a>
-        </nav>
+        <AdminNav currentPath="/admin/threads" />
         <h1 className="text-2xl font-bold text-gray-800 mb-6">スレッド管理</h1>
 
         <div className="overflow-x-auto">

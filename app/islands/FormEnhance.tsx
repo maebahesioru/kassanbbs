@@ -102,14 +102,14 @@ export default function FormEnhance() {
       // Only validate if mail input exists
       if (mailInput) {
         const mail = mailInput.value.trim();
-        // Allow empty mail, sage, or valid email format
-        const sageOrEmailOrEmpty = /^(?:sage|[^\s@]+@[^\s@]+\.[^\s@]+)?$/;
-        if (mail && !sageOrEmailOrEmpty.test(mail)) {
+        // Allow empty mail, sage, or @username format
+        const sageOrXIdOrEmpty = /^(?:sage|@[a-zA-Z0-9_]{1,30})?$/;
+        if (mail && !sageOrXIdOrEmpty.test(mail)) {
           // Validate only if not empty
           e.preventDefault();
           // Replace alert with notyf.error
           notyf.error(
-            `メールアドレスの形式が正しくありません。<br>
+            `X IDの形式が正しくありません。@から始めてください。<br>
             sageと空欄はOKです。
             `
           );

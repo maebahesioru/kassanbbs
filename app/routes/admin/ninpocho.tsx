@@ -10,6 +10,7 @@ import {
 } from "../../../src/ninpocho/usecases/manageNinpochoUsecase";
 import { addAdminLogUsecase } from "../../../src/adminlog/usecases/addAdminLogUsecase";
 import { ErrorMessage } from "../../components/ErrorMessage";
+import { AdminNav } from "../../components/AdminNav";
 import { getIpAddress } from "../../utils/getIpAddress";
 import { formatDate } from "../../../src/shared/utils/formatDate";
 import { requirePermission } from "../../middlewares/requirePermissionMiddleware";
@@ -202,41 +203,7 @@ export default createRoute(async (c) => {
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
       <section className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <nav className="flex gap-4 mb-6 flex-wrap">
-          <a href="/admin" className="text-purple-600 hover:underline">
-            基本設定
-          </a>
-          <a href="/admin/ngwords" className="text-purple-600 hover:underline">
-            NGワード
-          </a>
-          <a
-            href="/admin/iprestrictions"
-            className="text-purple-600 hover:underline"
-          >
-            IP制限
-          </a>
-          <a href="/admin/threads" className="text-purple-600 hover:underline">
-            スレッド管理
-          </a>
-          <a href="/admin/users" className="text-purple-600 hover:underline">
-            ユーザー管理
-          </a>
-          <a href="/admin/groups" className="text-purple-600 hover:underline">
-            グループ管理
-          </a>
-          <a
-            href="/admin/ninpocho"
-            className="text-purple-600 hover:underline font-semibold"
-          >
-            忍法帖管理
-          </a>
-          <a
-            href="/admin/password"
-            className="text-purple-600 hover:underline"
-          >
-            パスワード変更
-          </a>
-        </nav>
+        <AdminNav currentPath="/admin/ninpocho" />
         <h1 className="text-2xl font-bold text-gray-800 mb-6">忍法帖管理</h1>
 
         <h2 className="text-xl font-semibold text-gray-700 mb-4">

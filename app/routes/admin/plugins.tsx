@@ -5,6 +5,7 @@ import { updatePluginActiveRepository, updatePluginOrderRepository, rescanPlugin
 import { PluginRegistry } from "../../../src/plugin/core/PluginRegistry";
 import { addAdminLogUsecase } from "../../../src/adminlog/usecases/addAdminLogUsecase";
 import { ErrorMessage } from "../../components/ErrorMessage";
+import { AdminNav } from "../../components/AdminNav";
 import { getIpAddress } from "../../utils/getIpAddress";
 import { requirePermission } from "../../middlewares/requirePermissionMiddleware";
 
@@ -98,34 +99,33 @@ export default createRoute(async (c) => {
   }
 
   const pluginsResult = await getPluginRegistryRepository({ sql, logger });
-  const allPluginsResult = await sql`
-    SELECT id, name, description, is_active, hook_type, config_json
-    FROM plugin_registry
-    ORDER BY sort_order, name
-  `;
-  const plugins: (PluginConfig & { id: string; isActive: boolean; hookType: number })[] = (allPluginsResult || []).map((r: any) => ({
-    id: String(r.id),
-    name: String(r.name),
-    description: String(r.description || ""),
-    isActive: Boolean(r.is_active),
-    hookType: Number(r.hook_type || 0),
-    hookTypes: [Number(r.hook_type || 0)],
-    config: typeof r.config_json === "string" ? JSON.parse(r.config_json) : (r.config_json || {}),
-  }));
+  let plugins: (PluginConfig & { id: string; isActive: boolean; hookType: number })[] = [];
+  try {
+    const allPluginsResult = await sql`
+      SELECT id, name, description, is_active, hook_type, config_json
+      FROM plugin_registry
+      ORDER BY sort_order, name
+    `;
+    plugins = (allPluginsResult || []).map((r: any) => ({
+      id: String(r.id),
+      name: String(r.name),
+      description: String(r.description || ""),
+      isActive: Boolean(r.is_active),
+      hookType: Number(r.hook_type || 0),
+      hookTypes: [Number(r.hook_type || 0)],
+      config: (() => {
+        try { return typeof r.config_json === "string" ? JSON.parse(r.config_json) : (r.config_json || {}); }
+        catch { return {}; }
+      })(),
+    }));
+  } catch (e) {
+    logger.error({ operation: "admin/plugins", error: e, message: "Failed to load plugins" });
+  }
 
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
       <section className="bg-white rounded-lg shadow-md p-6">
-        <nav className="flex gap-4 mb-6 flex-wrap">
-          <a href="/admin" className="text-purple-600 hover:underline">基本設定</a>
-          <a href="/admin/plugins" className="text-purple-600 hover:underline font-semibold">プラグイン管理</a>
-          <a href="/admin/ngwords" className="text-purple-600 hover:underline">NGワード</a>
-          <a href="/admin/iprestrictions" className="text-purple-600 hover:underline">IP制限</a>
-          <a href="/admin/threads" className="text-purple-600 hover:underline">スレッド管理</a>
-          <a href="/admin/users" className="text-purple-600 hover:underline">ユーザー管理</a>
-          <a href="/admin/groups" className="text-purple-600 hover:underline">グループ管理</a>
-          <a href="/admin/password" className="text-purple-600 hover:underline">パスワード変更</a>
-        </nav>
+        <AdminNav currentPath="/admin/plugins" />
         <h1 className="text-2xl font-bold text-gray-800 mb-6">プラグイン管理</h1>
 
         <div className="flex justify-end mb-4">

@@ -7,6 +7,7 @@ import { permanentDeleteResponseUsecase } from "../../../src/conversation/usecas
 import { adminPostResponseUsecase } from "../../../src/conversation/usecases/adminPostResponseUsecase";
 import { addAdminLogUsecase } from "../../../src/adminlog/usecases/addAdminLogUsecase";
 import { ErrorMessage } from "../../components/ErrorMessage";
+import { AdminNav } from "../../components/AdminNav";
 import { getIpAddress } from "../../utils/getIpAddress";
 import { formatDate } from "../../../src/shared/utils/formatDate";
 import { requirePermission } from "../../middlewares/requirePermissionMiddleware";
@@ -183,24 +184,7 @@ export default createRoute(async (c) => {
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
       <section className="bg-white rounded-lg shadow-md p-6">
-        <nav className="flex gap-4 mb-6 flex-wrap">
-          <a href="/admin" className="text-purple-600 hover:underline">基本設定</a>
-          <a href="/admin/ngwords" className="text-purple-600 hover:underline">NGワード</a>
-          <a href="/admin/iprestrictions" className="text-purple-600 hover:underline">IP制限</a>
-          <a href="/admin/threads" className="text-purple-600 hover:underline">スレッド管理</a>
-          <a href="/admin/responses" className="text-purple-600 hover:underline font-semibold">レス管理</a>
-          <a href="/admin/users" className="text-purple-600 hover:underline">ユーザー管理</a>
-          <a href="/admin/groups" className="text-purple-600 hover:underline">グループ管理</a>
-          <a href="/admin/ninpocho" className="text-purple-600 hover:underline">忍法帖管理</a>
-          <a href="/admin/samba" className="text-purple-600 hover:underline">サンバ管理</a>
-          <a href="/admin/banners" className="text-purple-600 hover:underline">バナー管理</a>
-          <a href="/admin/notices" className="text-purple-600 hover:underline">お知らせ管理</a>
-          <a href="/admin/rebuild" className="text-purple-600 hover:underline">インデックス再構築</a>
-          <a href="/admin/update" className="text-purple-600 hover:underline">アップデート確認</a>
-          <a href="/admin/federation" className="text-purple-600 hover:underline">連合設定</a>
-          <a href="/admin/password" className="text-purple-600 hover:underline">パスワード変更</a>
-          <a href="/admin/autodelete" className="text-purple-600 hover:underline">自動削除設定</a>
-        </nav>
+        <AdminNav currentPath="/admin/responses" />
         <h1 className="text-2xl font-bold text-gray-800 mb-6">レス管理</h1>
 
         <div className="mb-6">
@@ -229,7 +213,7 @@ export default createRoute(async (c) => {
                   <tr className="bg-gray-100">
                     <th className="p-2 text-left w-12">#</th>
                     <th className="p-2 text-left">名前</th>
-                    <th className="p-2 text-left">メール</th>
+                    <th className="p-2 text-left">X ID</th>
                     <th className="p-2 text-left">内容</th>
                     <th className="p-2 text-left">日時</th>
                     <th className="p-2 text-left">ハッシュID</th>
@@ -263,7 +247,7 @@ export default createRoute(async (c) => {
                                   <input type="text" name="authorName" defaultValue={r.authorName} className="border rounded px-1 flex-grow" />
                                 </label>
                                 <label className="flex items-center gap-2">
-                                  <span className="w-16">メール:</span>
+                                  <span className="w-16">X ID:</span>
                                   <input type="text" name="mail" defaultValue={r.mail} className="border rounded px-1 flex-grow" />
                                 </label>
                                 <label className="flex items-start gap-2">
@@ -311,7 +295,7 @@ export default createRoute(async (c) => {
                 <input type="text" name="authorName" placeholder="管理者" className="border border-gray-400 rounded py-1 px-2 flex-grow" />
               </label>
               <label className="flex items-center gap-2">
-                <span className="w-24">メール:</span>
+                <span className="w-24">X ID:</span>
                 <input type="text" name="mail" className="border border-gray-400 rounded py-1 px-2 flex-grow" />
               </label>
               <label className="flex items-center gap-2">

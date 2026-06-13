@@ -8,6 +8,7 @@ import {
 } from "../../../src/notice/usecases/manageNoticesUsecase";
 import { addAdminLogUsecase } from "../../../src/adminlog/usecases/addAdminLogUsecase";
 import { ErrorMessage } from "../../components/ErrorMessage";
+import { AdminNav } from "../../components/AdminNav";
 import { getIpAddress } from "../../utils/getIpAddress";
 
 import type { ReadNotice } from "../../../src/notice/domain/read/ReadNotice";
@@ -132,22 +133,7 @@ export default createRoute(async (c) => {
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
       <section className="bg-white rounded-lg shadow-md p-6">
-        <nav className="flex gap-4 mb-6 flex-wrap">
-          <a href="/admin" className="text-purple-600 hover:underline">基本設定</a>
-          <a href="/admin/ngwords" className="text-purple-600 hover:underline">NGワード</a>
-          <a href="/admin/iprestrictions" className="text-purple-600 hover:underline">IP制限</a>
-          <a href="/admin/threads" className="text-purple-600 hover:underline">スレッド管理</a>
-          <a href="/admin/users" className="text-purple-600 hover:underline">ユーザー管理</a>
-          <a href="/admin/groups" className="text-purple-600 hover:underline">グループ管理</a>
-          <a href="/admin/ninpocho" className="text-purple-600 hover:underline">忍法帖管理</a>
-          <a href="/admin/banners" className="text-purple-600 hover:underline">バナー管理</a>
-          <a href="/admin/notices" className="text-purple-600 hover:underline font-semibold">お知らせ管理</a>
-          <a href="/admin/rebuild" className="text-purple-600 hover:underline">インデックス再構築</a>
-          <a href="/admin/update" className="text-purple-600 hover:underline">アップデート確認</a>
-          <a href="/admin/federation" className="text-purple-600 hover:underline">連合設定</a>
-          <a href="/admin/password" className="text-purple-600 hover:underline">パスワード変更</a>
-          <a href="/admin/autodelete" className="text-purple-600 hover:underline">自動削除設定</a>
-        </nav>
+        <AdminNav currentPath="/admin/notices" />
 
         <h1 className="text-2xl font-bold text-gray-800 mb-6">お知らせ管理</h1>
 

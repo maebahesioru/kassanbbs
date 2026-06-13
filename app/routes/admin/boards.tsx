@@ -3,6 +3,7 @@ import { createRoute } from "honox/factory";
 import { getBoardsUsecase, createBoardUsecase, updateBoardUsecase, deleteBoardUsecase } from "../../../src/board/usecases/manageBoardsUsecase";
 import { addAdminLogUsecase } from "../../../src/adminlog/usecases/addAdminLogUsecase";
 import { ErrorMessage } from "../../components/ErrorMessage";
+import { AdminNav } from "../../components/AdminNav";
 import { getIpAddress } from "../../utils/getIpAddress";
 import { requirePermission } from "../../middlewares/requirePermissionMiddleware";
 
@@ -109,16 +110,7 @@ export default createRoute(async (c) => {
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
       <section className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <nav className="flex gap-4 mb-6 flex-wrap">
-          <a href="/admin" className="text-purple-600 hover:underline">基本設定</a>
-          <a href="/admin/boards" className="text-purple-600 hover:underline font-semibold">板管理</a>
-          <a href="/admin/plugins" className="text-purple-600 hover:underline">プラグイン管理</a>
-          <a href="/admin/ngwords" className="text-purple-600 hover:underline">NGワード</a>
-          <a href="/admin/threads" className="text-purple-600 hover:underline">スレッド管理</a>
-          <a href="/admin/responses" className="text-purple-600 hover:underline">レス管理</a>
-          <a href="/admin/banners" className="text-purple-600 hover:underline">バナー管理</a>
-          <a href="/admin/update" className="text-purple-600 hover:underline">アップデート確認</a>
-        </nav>
+        <AdminNav currentPath="/admin/boards" />
         <h1 className="text-2xl font-bold text-gray-800 mb-6">板管理</h1>
 
         <h2 className="text-xl font-semibold text-gray-700 mb-4">板一覧</h2>

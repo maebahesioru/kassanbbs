@@ -2,6 +2,7 @@ import { createRoute } from "honox/factory";
 
 import { addAdminLogUsecase } from "../../../src/adminlog/usecases/addAdminLogUsecase";
 import { ErrorMessage } from "../../components/ErrorMessage";
+import { AdminNav } from "../../components/AdminNav";
 import { getIpAddress } from "../../utils/getIpAddress";
 import { formatDate } from "../../../src/shared/utils/formatDate";
 
@@ -147,7 +148,7 @@ export const POST = createRoute(async (c) => {
       `;
       for (const r of respByMail) {
         results.push({
-          type: "レス(メール)",
+          type: "レス(X ID)",
           id: r.id,
           title: r.t_title,
           detail: `#${r.response_number} ${r.author_name} (${r.mail})`,
@@ -207,15 +208,7 @@ export const POST = createRoute(async (c) => {
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
       <section className="bg-white rounded-lg shadow-md p-6">
-        <nav className="flex gap-4 mb-6 flex-wrap">
-          <a href="/admin" className="text-purple-600 hover:underline">基本設定</a>
-          <a href="/admin/search" className="text-purple-600 hover:underline font-semibold">検索</a>
-          <a href="/admin/threads" className="text-purple-600 hover:underline">スレッド管理</a>
-          <a href="/admin/responses" className="text-purple-600 hover:underline">レス管理</a>
-          <a href="/admin/users" className="text-purple-600 hover:underline">ユーザー管理</a>
-          <a href="/admin/ninpocho" className="text-purple-600 hover:underline">忍法帖管理</a>
-          <a href="/admin/failurelogs" className="text-purple-600 hover:underline">失敗ログ</a>
-        </nav>
+        <AdminNav currentPath="/admin/search" />
         <h1 className="text-2xl font-bold text-gray-800 mb-6">検索</h1>
 
         <form method="post" action="/admin/search" className="mb-8">
@@ -240,7 +233,7 @@ export const POST = createRoute(async (c) => {
                   <option value="name" selected={searchBy === "name"}>名前/タイトル</option>
                   <option value="body" selected={searchBy === "body"}>本文</option>
                   <option value="id" selected={searchBy === "id"}>ID/Hash</option>
-                  <option value="mail" selected={searchBy === "mail"}>メール</option>
+                  <option value="mail" selected={searchBy === "mail"}>X ID</option>
                 </select>
               </div>
               <div>
@@ -318,15 +311,7 @@ export default createRoute(async (c) => {
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
       <section className="bg-white rounded-lg shadow-md p-6">
-        <nav className="flex gap-4 mb-6 flex-wrap">
-          <a href="/admin" className="text-purple-600 hover:underline">基本設定</a>
-          <a href="/admin/search" className="text-purple-600 hover:underline font-semibold">検索</a>
-          <a href="/admin/threads" className="text-purple-600 hover:underline">スレッド管理</a>
-          <a href="/admin/responses" className="text-purple-600 hover:underline">レス管理</a>
-          <a href="/admin/users" className="text-purple-600 hover:underline">ユーザー管理</a>
-          <a href="/admin/ninpocho" className="text-purple-600 hover:underline">忍法帖管理</a>
-          <a href="/admin/failurelogs" className="text-purple-600 hover:underline">失敗ログ</a>
-        </nav>
+        <AdminNav currentPath="/admin/search" />
         <h1 className="text-2xl font-bold text-gray-800 mb-6">検索</h1>
 
         <form method="post" action="/admin/search">
@@ -351,7 +336,7 @@ export default createRoute(async (c) => {
                   <option value="name">名前/タイトル</option>
                   <option value="body">本文</option>
                   <option value="id">ID/Hash</option>
-                  <option value="mail">メール</option>
+                  <option value="mail">X ID</option>
                 </select>
               </div>
               <div>

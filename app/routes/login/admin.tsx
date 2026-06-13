@@ -75,7 +75,7 @@ export const POST = createRoute(async (c) => {
   }
 
   // Get secret key for JWT creation from environment
-  const secret = env<{ JWT_SECRET_KEY?: string }>(c).JWT_SECRET_KEY;
+  const secret = env<{ JWT_SECRET_KEY?: string }>(c).JWT_SECRET_KEY || import.meta.env.VITE_JWT_SECRET_KEY as string | undefined;
   if (!secret) {
     return c.render(
       <ErrorMessage error={new Error("JWT_SECRET_KEYが設定されていません。")} />

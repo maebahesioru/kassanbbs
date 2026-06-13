@@ -5,6 +5,7 @@ import { postThreadUsecase } from "../../../src/conversation/usecases/postThread
 import { postResponseByThreadIdUsecase } from "../../../src/conversation/usecases/postResponseByThreadIdUsecase";
 import { addAdminLogUsecase } from "../../../src/adminlog/usecases/addAdminLogUsecase";
 import { ErrorMessage } from "../../components/ErrorMessage";
+import { AdminNav } from "../../components/AdminNav";
 import { getIpAddress } from "../../utils/getIpAddress";
 import { formatDate } from "../../../src/shared/utils/formatDate";
 
@@ -129,17 +130,7 @@ export default createRoute(async (c) => {
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
       <section className="bg-white rounded-lg shadow-md p-6">
-        <nav className="flex gap-4 mb-6 flex-wrap">
-          <a href="/admin" className="text-purple-600 hover:underline">基本設定</a>
-          <a href="/admin/plugins" className="text-purple-600 hover:underline">プラグイン管理</a>
-          <a href="/admin/ngwords" className="text-purple-600 hover:underline">NGワード</a>
-          <a href="/admin/iprestrictions" className="text-purple-600 hover:underline">IP制限</a>
-          <a href="/admin/threads" className="text-purple-600 hover:underline">スレッド管理</a>
-          <a href="/admin/failurelogs" className="text-purple-600 hover:underline font-semibold">失敗ログ</a>
-          <a href="/admin/users" className="text-purple-600 hover:underline">ユーザー管理</a>
-          <a href="/admin/groups" className="text-purple-600 hover:underline">グループ管理</a>
-          <a href="/admin/password" className="text-purple-600 hover:underline">パスワード変更</a>
-        </nav>
+        <AdminNav currentPath="/admin/failurelogs" />
         <h1 className="text-2xl font-bold text-gray-800 mb-6">失敗ログ管理</h1>
 
         {logs.length === 0 ? (
@@ -152,7 +143,7 @@ export default createRoute(async (c) => {
                   <th className="p-2 text-left">日時</th>
                   <th className="p-2 text-left">エラーコード</th>
                   <th className="p-2 text-left">名前</th>
-                  <th className="p-2 text-left">メール</th>
+                  <th className="p-2 text-left">X ID</th>
                   <th className="p-2 text-left">内容</th>
                   <th className="p-2 text-left">IP</th>
                   <th className="p-2 text-left">ホスト</th>

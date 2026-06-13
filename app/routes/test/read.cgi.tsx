@@ -463,7 +463,7 @@ export default createRoute(async (c) => {
                       </span>
                       <span className="text-gray-400 text-xs">{formatDate(resp.postedAt.val, { acceptLanguage: c.req.header("Accept-Language") ?? undefined })}</span>
                       {resp.dailyId && <span className="text-gray-400 text-xs">ID:{resp.dailyId}</span>}
-                      <span className="text-gray-400 text-xs">ID:{resp.hashId.val}</span>
+                      <span className="text-gray-400 text-xs">ID:{resp.dailyId || resp.hashId.val}</span>
                       <span className="text-gray-400 text-xs">{viewerSlip}</span>
                     </div>
                     <div className="text-sm mt-1 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderedContent) }} />
@@ -480,7 +480,7 @@ export default createRoute(async (c) => {
                     </span>
                     <span className="text-gray-400 text-xs">{formatDate(resp.postedAt.val, { acceptLanguage: c.req.header("Accept-Language") ?? undefined })}</span>
                     {resp.dailyId && <span className="text-gray-400 text-xs">ID:{resp.dailyId}</span>}
-                    <span className="text-gray-400 text-xs">ID:{resp.hashId.val}</span>
+                    <span className="text-gray-400 text-xs">ID:{resp.dailyId || resp.hashId.val}</span>
                   </dt>
                   <dd className="text-sm mt-1 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderedContent) }} />
                 </dl>
@@ -520,8 +520,8 @@ export default createRoute(async (c) => {
                 <label className="text-xs text-gray-700">名前:
                   <input type="text" name="FROM" value={userCookie.name} className="border border-gray-400 rounded py-1 px-2 text-sm w-40" />
                 </label>
-                <label className="text-xs text-gray-700">メール:
-                  <input type="text" name="mail" value={userCookie.mail} className="border border-gray-400 rounded py-1 px-2 text-sm w-40" />
+                <label className="text-xs text-gray-700">X ID:
+                  <input type="text" name="mail" value={userCookie.mail} placeholder="@username" className="border border-gray-400 rounded py-1 px-2 text-sm w-40" />
                 </label>
               </div>
               <div>

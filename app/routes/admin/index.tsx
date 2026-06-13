@@ -7,6 +7,7 @@ import { getAdminLogsUsecase } from "../../../src/adminlog/usecases/getAdminLogs
 import { getBoardsUsecase } from "../../../src/board/usecases/manageBoardsUsecase";
 import type { AdminLogType } from "../../../src/adminlog/repositories/addAdminLogRepository";
 import { ErrorMessage } from "../../components/ErrorMessage";
+import { AdminNav } from "../../components/AdminNav";
 import { getIpAddress } from "../../utils/getIpAddress";
 import { formatDate } from "../../../src/shared/utils/formatDate";
 import HtmlPreview from "../../islands/HtmlPreview";
@@ -331,27 +332,7 @@ export default createRoute(async (c) => {
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
       <section className="bg-white rounded-lg shadow-md p-10">
-        <nav className="flex gap-4 mb-6 flex-wrap">
-          <a href="/admin" className="text-purple-600 hover:underline font-semibold">基本設定</a>
-          <a href="/admin/boards" className="text-purple-600 hover:underline">板管理</a>
-          <a href="/admin/plugins" className="text-purple-600 hover:underline">プラグイン管理</a>
-          <a href="/admin/ngwords" className="text-purple-600 hover:underline">NGワード</a>
-          <a href="/admin/iprestrictions" className="text-purple-600 hover:underline">IP制限</a>
-          <a href="/admin/threads" className="text-purple-600 hover:underline">スレッド管理</a>
-          <a href="/admin/responses" className="text-purple-600 hover:underline">レス管理</a>
-          <a href="/admin/users" className="text-purple-600 hover:underline">ユーザー管理</a>
-          <a href="/admin/groups" className="text-purple-600 hover:underline">グループ管理</a>
-          <a href="/admin/ninpocho" className="text-purple-600 hover:underline">忍法帖管理</a>
-          <a href="/admin/failurelogs" className="text-purple-600 hover:underline">失敗ログ</a>
-          <a href="/admin/samba" className="text-purple-600 hover:underline">サンバ管理</a>
-          <a href="/admin/banners" className="text-purple-600 hover:underline">バナー管理</a>
-          <a href="/admin/notices" className="text-purple-600 hover:underline">お知らせ管理</a>
-          <a href="/admin/rebuild" className="text-purple-600 hover:underline">インデックス再構築</a>
-          <a href="/admin/update" className="text-purple-600 hover:underline">アップデート確認</a>
-          <a href="/admin/federation" className="text-purple-600 hover:underline">連合設定</a>
-          <a href="/admin/password" className="text-purple-600 hover:underline">パスワード変更</a>
-          <a href="/admin/autodelete" className="text-purple-600 hover:underline">自動削除設定</a>
-        </nav>
+        <AdminNav currentPath="/admin" />
         <h1 className="text-2xl font-bold text-gray-800 mb-6">管理者画面</h1>
         <h2 className="text-xl font-semibold text-gray-700 mb-4">設定</h2>
         <form method="post" action="/admin" className="w-full">
@@ -776,7 +757,7 @@ export default createRoute(async (c) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               { id: "maxNameLength", label: "名前最大長", val: configResult.value.maxNameLength },
-              { id: "maxMailLength", label: "メール最大長", val: configResult.value.maxMailLength },
+              { id: "maxMailLength", label: "X ID最大長", val: configResult.value.maxMailLength },
               { id: "maxSubjectLength", label: "件名最大長", val: configResult.value.maxSubjectLength },
               { id: "lineMaxChars", label: "行最大文字数", val: configResult.value.lineMaxChars },
             ].map(({ id, label, val }) => (
