@@ -154,11 +154,8 @@ export default createRoute(async (c) => {
                           c.req.header("Accept-Language") ?? undefined,
                       })}
                     </span>
-                    <span className="text-gray-400 text-xs ml-2">
-                      ID: {resp.dailyId}
-                    </span>
                     {resp.wattyoi && (
-                      <span className="text-gray-400 text-xs ml-1">
+                      <span className="text-gray-500 text-sm">
                         {resp.wattyoi}
                       </span>
                     )}
