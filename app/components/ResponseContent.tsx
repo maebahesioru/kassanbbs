@@ -52,7 +52,7 @@ export const ResponseContentComponent: FC<{
   if (isDeleted) {
     return (
       <div>
-        <span className="text-gray-500">あぼーん</span>
+        <span className="text-gray-500 dark:text-gray-400">あぼーん</span>
       </div>
     );
   }
@@ -77,18 +77,18 @@ export const ResponseContentComponent: FC<{
     return (
       <div className="post-content">
         {isOwner && (
-          <span className="text-red-600 font-bold text-xs mr-1">(主)</span>
+          <span className="text-red-600 dark:text-red-400 font-bold text-xs mr-1">(主)</span>
         )}
         {isSubOwner && (
-          <span className="text-orange-600 font-bold text-xs mr-1">(副)</span>
+          <span className="text-orange-600 dark:text-orange-400 font-bold text-xs mr-1">(副)</span>
         )}
         {beId && (
-          <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded mr-1">
+          <span className="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs px-2 py-0.5 rounded mr-1">
             <a
               href={`https://be.2ch.net/user/${beId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-700 hover:underline"
+              className="text-blue-700 dark:text-blue-300 hover:underline"
               style={linkColor ? { color: linkColor } : undefined}
             >
               BE:{beId}
@@ -96,18 +96,18 @@ export const ResponseContentComponent: FC<{
           </span>
         )}
         {!noId && dailyId && (
-          <span className="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded mr-1">
+          <span className="inline-block bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs px-2 py-0.5 rounded mr-1">
             ID:{dailyId}
           </span>
         )}
         {wattyoi && (
-          <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded mr-1">
+          <span className="inline-block bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs px-2 py-0.5 rounded mr-1">
             {wattyoi}
           </span>
         )}
         {htmlShouldCollapse ? (
           <details>
-            <summary className="cursor-pointer text-gray-500 text-sm">
+            <summary className="cursor-pointer text-gray-500 dark:text-gray-400 text-sm">
               全て表示（残り{htmlLineCount - COLLAPSE_LINE_THRESHOLD}行）
             </summary>
             <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }} />
@@ -127,24 +127,24 @@ export const ResponseContentComponent: FC<{
   return (
     <div className="post-content">
       {isOwner && (
-        <span className="text-red-600 font-bold text-xs mr-1">(主)</span>
+        <span className="text-red-600 dark:text-red-400 font-bold text-xs mr-1">(主)</span>
       )}
       {isSubOwner && (
-        <span className="text-orange-600 font-bold text-xs mr-1">(副)</span>
+        <span className="text-orange-600 dark:text-orange-400 font-bold text-xs mr-1">(副)</span>
       )}
       {!noId && dailyId && (
-        <span className="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded mr-1">
+        <span className="inline-block bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs px-2 py-0.5 rounded mr-1">
           ID:{dailyId}
         </span>
       )}
       {wattyoi && (
-        <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded mr-1">
+        <span className="inline-block bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs px-2 py-0.5 rounded mr-1">
           {wattyoi}
         </span>
       )}
       {shouldCollapse ? (
         <details>
-          <summary className="cursor-pointer text-gray-500 text-sm">
+          <summary className="cursor-pointer text-gray-500 dark:text-gray-400 text-sm">
             全て表示（残り{lineCount - COLLAPSE_LINE_THRESHOLD}行）
           </summary>
           <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(withBreaks) }} />

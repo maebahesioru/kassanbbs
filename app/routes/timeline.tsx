@@ -61,14 +61,14 @@ export default createRoute(async (c) => {
 
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
-      <section className="bg-white rounded-lg shadow-md p-6 mb-8">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
         <h1 className="text-2xl font-bold mb-4">タイムライン</h1>
-        <p className="text-gray-600 text-sm mb-6">
+        <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
           掲示板の最近の投稿を時系列で表示します
         </p>
 
         {entries.length === 0 ? (
-          <p className="text-gray-500">投稿はまだありません。</p>
+          <p className="text-gray-500 dark:text-gray-400">投稿はまだありません。</p>
         ) : (
           <div className="space-y-4">
             {entries.map((entry: TimelineEntry) => {
@@ -76,12 +76,12 @@ export default createRoute(async (c) => {
               return (
                 <div
                   key={entry.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                  className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <a
                       href={`/threads/${entry.thread_id}/l50`}
-                      className="text-purple-600 hover:underline font-semibold text-sm"
+                      className="text-purple-600 dark:text-purple-400 hover:underline font-semibold text-sm"
                     >
                       {threadTitle}
                     </a>
@@ -89,13 +89,13 @@ export default createRoute(async (c) => {
                       {new Date(entry.posted_at).toLocaleString("ja-JP")}
                     </span>
                   </div>
-                  <div className="text-xs text-gray-500 mb-1">
-                    <span className="font-bold text-gray-700">{entry.author_name}</span>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    <span className="font-bold text-gray-700 dark:text-gray-300">{entry.author_name}</span>
                     {entry.mail ? ` [${entry.mail}]` : ""}
                     {" No."}
                     {entry.response_number}
                   </div>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
                     {truncate(entry.response_content, 200)}
                   </p>
                 </div>
@@ -105,7 +105,7 @@ export default createRoute(async (c) => {
         )}
 
         <div className="mt-6">
-          <a href="/" className="text-blue-500 hover:underline">
+          <a href="/" className="text-blue-500 dark:text-blue-400 hover:underline">
             掲示板に戻る
           </a>
         </div>

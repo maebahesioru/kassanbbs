@@ -156,54 +156,54 @@ export default createRoute(async (c) => {
 
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
-      <section className="bg-white rounded-lg shadow-md p-6">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <AdminNav currentPath="/admin/users" />
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">管理者ユーザー管理</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6">管理者ユーザー管理</h1>
 
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">管理者追加</h2>
+        <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4">管理者追加</h2>
         <form method="post" action="/admin/users" className="w-full mb-8">
           <input type="hidden" name="action" value="add" />
           <div className="flex flex-col gap-3">
             <div className="flex gap-2">
               <div className="flex flex-col flex-grow">
-                <label htmlFor="username" className="text-gray-700 text-sm font-bold mb-1">
+                <label htmlFor="username" className="text-gray-700 dark:text-gray-300 text-sm font-bold mb-1">
                   ユーザー名
                 </label>
                 <input
                   type="text"
                   id="username"
                   name="username"
-                  className="border border-gray-400 rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="border border-gray-400 dark:border-gray-600 rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
               </div>
               <div className="flex flex-col flex-grow">
-                <label htmlFor="fullName" className="text-gray-700 text-sm font-bold mb-1">
+                <label htmlFor="fullName" className="text-gray-700 dark:text-gray-300 text-sm font-bold mb-1">
                   表示名
                 </label>
                 <input
                   type="text"
                   id="fullName"
                   name="fullName"
-                  className="border border-gray-400 rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="border border-gray-400 dark:border-gray-600 rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
             </div>
             <div className="flex gap-2">
               <div className="flex flex-col flex-grow">
-                <label htmlFor="password" className="text-gray-700 text-sm font-bold mb-1">
+                <label htmlFor="password" className="text-gray-700 dark:text-gray-300 text-sm font-bold mb-1">
                   パスワード
                 </label>
                 <input
                   type="password"
                   id="password"
                   name="password"
-                  className="border border-gray-400 rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="border border-gray-400 dark:border-gray-600 rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
               </div>
               <div className="flex flex-col justify-end">
-                <label className="flex items-center gap-2 text-gray-700 text-sm font-bold mb-1">
+                <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm font-bold mb-1">
                   <input type="checkbox" name="isSuperAdmin" value="true" />
                   スーパー管理者
                 </label>
@@ -212,7 +212,7 @@ export default createRoute(async (c) => {
             <div>
               <button
                 type="submit"
-                className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="bg-purple-500 dark:bg-purple-600 hover:bg-purple-700 dark:hover:bg-purple-800 text-white font-bold py-2 px-6 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
                 追加
               </button>
@@ -220,22 +220,22 @@ export default createRoute(async (c) => {
           </div>
         </form>
 
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">管理者一覧</h2>
+        <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4">管理者一覧</h2>
         {users.length === 0 ? (
-          <p className="text-gray-500">管理者ユーザーは登録されていません。</p>
+          <p className="text-gray-500 dark:text-gray-400">管理者ユーザーは登録されていません。</p>
         ) : (
           <div className="space-y-4">
             {users.map((user) => {
               const userGroupIds = userGroupsMap.get(user.id) || [];
               return (
-                <div key={user.id} className="border rounded-lg p-4 bg-gray-50">
+                <div key={user.id} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50">
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <span className="font-semibold text-gray-800">
+                      <span className="font-semibold text-gray-800 dark:text-gray-200">
                         {user.username}
                       </span>
                       {user.fullName && (
-                        <span className="text-gray-500 ml-2">
+                        <span className="text-gray-500 dark:text-gray-400 ml-2">
                           ({user.fullName})
                         </span>
                       )}
@@ -243,7 +243,7 @@ export default createRoute(async (c) => {
                         className={`ml-2 inline-block px-2 py-0.5 rounded text-xs font-semibold ${
                           user.isSuperAdmin
                             ? "bg-purple-100 text-purple-700"
-                            : "bg-gray-100 text-gray-700"
+                            : "bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300"
                         }`}
                       >
                         {user.isSuperAdmin ? "スーパー管理者" : "一般管理者"}
@@ -286,7 +286,7 @@ export default createRoute(async (c) => {
                         name="userId"
                         value={user.id}
                       />
-                      <p className="text-xs text-gray-500 mb-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                         所属グループ:
                       </p>
                       <div className="flex flex-wrap gap-2 items-center">

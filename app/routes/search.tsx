@@ -71,8 +71,8 @@ export default createRoute(async (c) => {
 
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
-      <section className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">検索</h1>
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6">検索</h1>
 
         <div className="flex flex-wrap gap-8">
           <div className="flex-1 min-w-[280px]">
@@ -83,21 +83,21 @@ export default createRoute(async (c) => {
                   name="q"
                   value={keyword}
                   placeholder="検索キーワードを入力..."
-                  className="border border-gray-400 rounded py-2 px-3 flex-grow focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="border border-gray-400 dark:border-gray-600 rounded py-2 px-3 flex-grow focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <input type="hidden" name="type" value={rawType} />
                 <input type="hidden" name="page" value="1" />
                 <input type="hidden" name="board" value={rawBoardId} />
                 <button
                   type="submit"
-                  className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded focus:outline-none"
+                  className="bg-purple-500 dark:bg-purple-600 hover:bg-purple-700 dark:hover:bg-purple-800 text-white font-bold py-2 px-6 rounded focus:outline-none"
                 >
                   検索
                 </button>
               </div>
 
               <fieldset className="border border-gray-300 rounded p-3">
-                <legend className="text-sm font-semibold text-gray-700 px-1">検索対象</legend>
+                <legend className="text-sm font-semibold text-gray-700 dark:text-gray-300 px-1">検索対象</legend>
                 <div className="flex flex-wrap gap-3 mt-1">
                   {SEARCH_TYPES.map((st) => {
                     const checked = (searchType & st.value) !== 0;
@@ -123,25 +123,25 @@ export default createRoute(async (c) => {
 
               <div className="flex gap-2 flex-wrap">
                 <div className="flex items-center gap-1">
-                  <label className="text-sm text-gray-700">FROM:</label>
+                  <label className="text-sm text-gray-700 dark:text-gray-300">FROM:</label>
                   <input
                     type="date"
                     name="from"
                     value={dateFrom}
-                    className="border border-gray-400 rounded py-1 px-2 text-sm focus:outline-none"
+                    className="border border-gray-400 dark:border-gray-600 rounded py-1 px-2 text-sm focus:outline-none"
                   />
                 </div>
                 <div className="flex items-center gap-1">
-                  <label className="text-sm text-gray-700">TO:</label>
+                  <label className="text-sm text-gray-700 dark:text-gray-300">TO:</label>
                   <input
                     type="date"
                     name="to"
                     value={dateTo}
-                    className="border border-gray-400 rounded py-1 px-2 text-sm focus:outline-none"
+                    className="border border-gray-400 dark:border-gray-600 rounded py-1 px-2 text-sm focus:outline-none"
                   />
                 </div>
                 <div className="flex items-center gap-1">
-                  <label className="text-sm text-gray-700">板:</label>
+                  <label className="text-sm text-gray-700 dark:text-gray-300">板:</label>
                   <select
                     name="board"
                     value={rawBoardId}
@@ -152,7 +152,7 @@ export default createRoute(async (c) => {
                       url.searchParams.set("page", "1");
                       window.location.href = url.toString();
                     }}
-                    className="border border-gray-400 rounded py-1 px-2 text-sm focus:outline-none"
+                    className="border border-gray-400 dark:border-gray-600 rounded py-1 px-2 text-sm focus:outline-none"
                   >
                     <option value="">全ての板</option>
                     {boards.map((b) => (
@@ -163,22 +163,22 @@ export default createRoute(async (c) => {
               </div>
 
               {searchCaptchaEnabled && (
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-gray-400">
                   CAPTCHA verification enabled for search
                 </div>
               )}
             </form>
           </div>
 
-          <aside className="w-48 border-l border-gray-200 pl-6">
-            <h2 className="text-sm font-bold text-gray-700 mb-3">板一覧</h2>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li><a href="/search" className="text-purple-600 hover:underline">全ての板</a></li>
+          <aside className="w-48 border-l border-gray-200 dark:border-gray-700 pl-6">
+            <h2 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">板一覧</h2>
+            <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+              <li><a href="/search" className="text-purple-600 dark:text-purple-400 hover:underline">全ての板</a></li>
               {boards.map((b) => (
                 <li key={b.id}>
                   <a
                     href={`/search?board=${b.id}`}
-                    className={`hover:underline ${rawBoardId === b.id ? "text-purple-600 font-semibold" : "text-gray-600"}`}
+                    className={`hover:underline ${rawBoardId === b.id ? "text-purple-600 dark:text-purple-400 font-semibold" : "text-gray-600 dark:text-gray-400"}`}
                   >
                     {b.boardName}
                   </a>
@@ -192,16 +192,16 @@ export default createRoute(async (c) => {
 
         {results && (
           <div className="mt-6">
-            <p className="text-gray-600 mb-4">検索結果: {results.total}件 (page {page}/{totalPages || 1})</p>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">検索結果: {results.total}件 (page {page}/{totalPages || 1})</p>
             {results.items.length === 0 ? (
-              <p className="text-gray-500">該当する結果がありませんでした。</p>
+              <p className="text-gray-500 dark:text-gray-400">該当する結果がありませんでした。</p>
             ) : (
               <>
                 <ul className="flex flex-col gap-3">
                   {results.items.map((item, index) => (
-                    <li key={index} className="bg-gray-50 p-4 rounded-md">
+                    <li key={index} className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-md">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           [{item.type === "thread" ? "スレッド" : "レス"}]
                         </span>
                         <a
@@ -210,28 +210,28 @@ export default createRoute(async (c) => {
                               ? `/threads/${item.threadId}/l50`
                               : `/threads/${item.threadId}/${item.responseNumber || ""}`
                           }
-                          className="text-purple-600 hover:underline font-semibold"
+                          className="text-purple-600 dark:text-purple-400 hover:underline font-semibold"
                         >
                           {item.threadTitle}
                         </a>
                         {item.responseNumber && (
-                          <span className="text-sm text-gray-500">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
                             No.{item.responseNumber}
                           </span>
                         )}
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           {formatDate(item.postedAt, {
                             acceptLanguage: c.req.header("Accept-Language") ?? undefined,
                           })}
                         </span>
                       </div>
                       {item.authorName && (
-                        <div className="text-sm text-gray-600 mb-1">
+                        <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                           名前: {item.authorName}
                           {item.hashId && <span> ID: {item.hashId}</span>}
                         </div>
                       )}
-                      <div className="text-gray-800 text-sm whitespace-pre-wrap max-h-32 overflow-y-auto">
+                      <div className="text-gray-800 dark:text-gray-200 text-sm whitespace-pre-wrap max-h-32 overflow-y-auto">
                         {item.content.length > 200
                           ? item.content.substring(0, 200) + "..."
                           : item.content}
@@ -245,7 +245,7 @@ export default createRoute(async (c) => {
                     {page > 1 && (
                       <a
                         href={`/search?q=${encodeURIComponent(keyword)}&type=${rawType}&from=${dateFrom}&to=${dateTo}&page=${page - 1}${rawBoardId ? `&board=${rawBoardId}` : ""}`}
-                        className="bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded text-sm"
+                        className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 text-gray-700 dark:text-gray-300 py-1 px-3 rounded text-sm"
                       >
                         前へ
                       </a>
@@ -258,7 +258,7 @@ export default createRoute(async (c) => {
                         <a
                           key={p}
                           href={`/search?q=${encodeURIComponent(keyword)}&type=${rawType}&from=${dateFrom}&to=${dateTo}&page=${p}${rawBoardId ? `&board=${rawBoardId}` : ""}`}
-                          className={`py-1 px-3 rounded text-sm ${p === page ? "bg-purple-500 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-700"}`}
+                          className={`py-1 px-3 rounded text-sm ${p === page ? "bg-purple-500 dark:bg-purple-600 text-white" : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 text-gray-700 dark:text-gray-300"}`}
                         >
                           {p}
                         </a>
@@ -267,7 +267,7 @@ export default createRoute(async (c) => {
                     {page < totalPages && (
                       <a
                         href={`/search?q=${encodeURIComponent(keyword)}&type=${rawType}&from=${dateFrom}&to=${dateTo}&page=${page + 1}${rawBoardId ? `&board=${rawBoardId}` : ""}`}
-                        className="bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded text-sm"
+                        className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 text-gray-700 dark:text-gray-300 py-1 px-3 rounded text-sm"
                       >
                         次へ
                       </a>

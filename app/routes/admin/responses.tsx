@@ -183,14 +183,14 @@ export default createRoute(async (c) => {
 
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
-      <section className="bg-white rounded-lg shadow-md p-6">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <AdminNav currentPath="/admin/responses" />
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">レス管理</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6">レス管理</h1>
 
         <div className="mb-6">
-          <label className="text-gray-700 text-sm font-bold mb-1 block">スレッド選択</label>
+          <label className="text-gray-700 dark:text-gray-300 text-sm font-bold mb-1 block">スレッド選択</label>
           <form method="get" action="/admin/responses" className="flex gap-2">
-            <select name="threadId" className="border border-gray-400 rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500 flex-grow">
+            <select name="threadId" className="border border-gray-400 dark:border-gray-600 rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500 flex-grow">
               <option value="">-- スレッドを選択 --</option>
               {threads.map((t) => (
                 <option key={t.id.val} value={t.id.val} selected={t.id.val === selectedThreadId}>
@@ -198,7 +198,7 @@ export default createRoute(async (c) => {
                 </option>
               ))}
             </select>
-            <button type="submit" className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+            <button type="submit" className="bg-purple-500 dark:bg-purple-600 hover:bg-purple-700 dark:hover:bg-purple-800 text-white font-bold py-2 px-4 rounded">
               表示
             </button>
           </form>
@@ -206,11 +206,11 @@ export default createRoute(async (c) => {
 
         {responses.length > 0 && (
           <>
-            <h2 className="text-xl font-semibold text-gray-700 mb-2">{threadTitle}</h2>
+            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">{threadTitle}</h2>
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-100">
+                  <tr className="bg-gray-100 dark:bg-gray-900">
                     <th className="p-2 text-left w-12">#</th>
                     <th className="p-2 text-left">名前</th>
                     <th className="p-2 text-left">X ID</th>
@@ -224,7 +224,7 @@ export default createRoute(async (c) => {
                 </thead>
                 <tbody>
                   {responses.map((r) => (
-                    <tr key={r.id} className="border-t hover:bg-gray-50">
+                    <tr key={r.id} className="border-t hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-800/50">
                       <td className="p-2 font-bold">{r.number}</td>
                       <td className="p-2 max-w-xs truncate">{r.authorName}</td>
                       <td className="p-2 max-w-xs truncate">{r.mail}</td>
@@ -237,7 +237,7 @@ export default createRoute(async (c) => {
                         <div className="flex gap-1">
                           <details className="relative">
                             <summary className="bg-blue-500 hover:bg-blue-700 text-white text-xs font-bold py-1 px-2 rounded cursor-pointer">編集</summary>
-                            <form method="post" action="/admin/responses" className="mt-2 bg-gray-50 p-3 rounded border text-xs absolute right-0 z-10 w-96">
+                            <form method="post" action="/admin/responses" className="mt-2 bg-gray-50 dark:bg-gray-800/50 p-3 rounded border text-xs absolute right-0 z-10 w-96">
                               <input type="hidden" name="action" value="edit" />
                               <input type="hidden" name="threadId" value={selectedThreadId} />
                               <input type="hidden" name="responseNumber" value={r.number} />
@@ -275,13 +275,13 @@ export default createRoute(async (c) => {
         )}
 
         <div className="mt-8 pt-6 border-t">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">管理者投稿</h2>
-          <form method="post" action="/admin/responses" className="bg-gray-50 p-4 rounded border">
+          <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4">管理者投稿</h2>
+          <form method="post" action="/admin/responses" className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded border">
             <input type="hidden" name="action" value="adminPost" />
             <div className="flex flex-col gap-3">
               <label className="flex items-center gap-2">
                 <span className="w-24">スレッド:</span>
-                <select name="threadId" className="border border-gray-400 rounded py-1 px-2 flex-grow">
+                <select name="threadId" className="border border-gray-400 dark:border-gray-600 rounded py-1 px-2 flex-grow">
                   <option value="">-- スレッドを選択 --</option>
                   {threads.map((t) => (
                     <option key={t.id.val} value={t.id.val} selected={t.id.val === selectedThreadId}>
@@ -292,19 +292,19 @@ export default createRoute(async (c) => {
               </label>
               <label className="flex items-center gap-2">
                 <span className="w-24">名前:</span>
-                <input type="text" name="authorName" placeholder="管理者" className="border border-gray-400 rounded py-1 px-2 flex-grow" />
+                <input type="text" name="authorName" placeholder="管理者" className="border border-gray-400 dark:border-gray-600 rounded py-1 px-2 flex-grow" />
               </label>
               <label className="flex items-center gap-2">
                 <span className="w-24">X ID:</span>
-                <input type="text" name="mail" className="border border-gray-400 rounded py-1 px-2 flex-grow" />
+                <input type="text" name="mail" className="border border-gray-400 dark:border-gray-600 rounded py-1 px-2 flex-grow" />
               </label>
               <label className="flex items-center gap-2">
                 <span className="w-24">わたゆい:</span>
-                <input type="text" name="wattyoi" className="border border-gray-400 rounded py-1 px-2 flex-grow" />
+                <input type="text" name="wattyoi" className="border border-gray-400 dark:border-gray-600 rounded py-1 px-2 flex-grow" />
               </label>
               <label className="flex items-start gap-2">
                 <span className="w-24">内容:</span>
-                <textarea name="responseContent" className="border border-gray-400 rounded py-1 px-2 flex-grow h-24" required></textarea>
+                <textarea name="responseContent" className="border border-gray-400 dark:border-gray-600 rounded py-1 px-2 flex-grow h-24" required></textarea>
               </label>
               <div className="flex justify-end">
                 <button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-6 rounded">投稿</button>

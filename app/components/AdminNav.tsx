@@ -28,7 +28,7 @@ export const AdminNav: FC<{ currentPath?: string }> = ({ currentPath }) => (
     {NAV_ITEMS.map((item) => (
       <a
         href={item.href}
-        className={`text-purple-600 hover:underline ${currentPath === item.href ? "font-semibold" : ""}`}
+        className={`text-purple-600 dark:text-purple-400 hover:underline ${currentPath === item.href ? "font-semibold" : ""}`}
       >
         {item.label}
       </a>

@@ -207,14 +207,14 @@ export default createRoute(async (c) => {
 
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
-      <section className="bg-white rounded-lg shadow-md p-6">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <AdminNav currentPath="/admin/threads" />
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">スレッド管理</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6">スレッド管理</h1>
 
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
-              <tr className="bg-gray-100">
+              <tr className="bg-gray-100 dark:bg-gray-900">
                 <th className="p-2 text-left">タイトル</th>
                 <th className="p-2 text-left">状態</th>
                 <th className="p-2 text-left">属性</th>
@@ -263,7 +263,7 @@ export default createRoute(async (c) => {
                         <span className="inline-block bg-violet-200 text-violet-800 text-xs font-semibold px-1 py-0.5 rounded">sage</span>
                       )}
                       {thread.attrs.noId && (
-                        <span className="inline-block bg-gray-200 text-gray-800 text-xs font-semibold px-1 py-0.5 rounded">ID無</span>
+                        <span className="inline-block bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-semibold px-1 py-0.5 rounded">ID無</span>
                       )}
                       {thread.attrs.force774 && (
                         <span className="inline-block bg-cyan-200 text-cyan-800 text-xs font-semibold px-1 py-0.5 rounded">名無</span>
@@ -286,7 +286,7 @@ export default createRoute(async (c) => {
                     </div>
                   </td>
                   <td className="p-2">{thread.countResponse}</td>
-                  <td className="p-2 text-gray-500 text-xs whitespace-nowrap">
+                  <td className="p-2 text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">
                     {formatDate(thread.updatedAt.val)}
                   </td>
                   <td className="p-2">
@@ -351,7 +351,7 @@ export default createRoute(async (c) => {
                           <input type="hidden" name="threadId" value={thread.id.val} />
                           <button
                             type="submit"
-                            className="bg-gray-500 hover:bg-gray-700 text-white text-xs font-bold py-1 px-2 rounded focus:outline-none"
+                            className="bg-gray-50 dark:bg-gray-800/500 hover:bg-gray-700 text-white text-xs font-bold py-1 px-2 rounded focus:outline-none"
                           >
                             アーカイブ
                           </button>
@@ -370,8 +370,8 @@ export default createRoute(async (c) => {
                       </form>
                     </div>
                     <details className="mt-2">
-                      <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700">属性編集</summary>
-                      <form method="post" action="/admin/threads" className="mt-2 bg-gray-50 p-2 rounded border text-xs">
+                      <summary className="text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:text-gray-300">属性編集</summary>
+                      <form method="post" action="/admin/threads" className="mt-2 bg-gray-50 dark:bg-gray-800/50 p-2 rounded border text-xs">
                         <input type="hidden" name="action" value="updateAttrs" />
                         <input type="hidden" name="threadId" value={thread.id.val} />
                         <div className="grid grid-cols-2 gap-2">
@@ -466,7 +466,7 @@ export default createRoute(async (c) => {
                               className="border rounded w-16 px-1" />
                           </label>
                           <div className="col-span-2 flex flex-col gap-1">
-                            <label className="text-gray-600">BANリスト（1行につき1つのhash_id）:</label>
+                            <label className="text-gray-600 dark:text-gray-400">BANリスト（1行につき1つのhash_id）:</label>
                             <textarea
                               name="bansText"
                               className="border rounded w-full h-16 px-1 font-mono text-xs"
@@ -481,7 +481,7 @@ export default createRoute(async (c) => {
                           <div className="col-span-2 flex justify-end mt-1">
                             <button
                               type="submit"
-                              className="bg-purple-500 hover:bg-purple-700 text-white text-xs font-bold py-1 px-3 rounded focus:outline-none"
+                              className="bg-purple-500 dark:bg-purple-600 hover:bg-purple-700 dark:hover:bg-purple-800 text-white text-xs font-bold py-1 px-3 rounded focus:outline-none"
                             >
                               属性を更新
                             </button>

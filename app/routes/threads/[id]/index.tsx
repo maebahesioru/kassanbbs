@@ -86,10 +86,10 @@ export default createRoute(async (c) => {
   return c.render(
     <>
       <main className="container mx-auto flex-grow py-8 px-4">
-        <section className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-4 flex-wrap">
-              <h3 className="text-purple-600 font-bold text-xl">
+              <h3 className="text-purple-600 dark:text-purple-400 font-bold text-xl">
                 {allResponsesResult.value.thread.threadTitle.val} (
                 {allResponsesResult.value.thread.responseCount})
               </h3>
@@ -130,12 +130,12 @@ export default createRoute(async (c) => {
                   key={resp.responseNumber.val}
                   // スレッドIDとレス番号を組み合わせてアンカーとなるIDを生成
                   id={`${resp.threadId.val}-${resp.responseNumber.val}`}
-                  className="bg-gray-50 p-4 rounded-md"
+                  className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-md"
                 >
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <span className="font-bold">{resp.responseNumber.val}</span>
                     <span
-                      className={`text-gray-700 ${
+                      className={`text-gray-700 dark:text-gray-300 ${
                         isSage(resp.mail) ? "text-violet-600" : ""
                       }`}
                       style={{ color: resp.authorName.val.color || nameColor }}
@@ -143,34 +143,34 @@ export default createRoute(async (c) => {
                       {formatReadAuthorName(resp.authorName, resp.capcode)}
                     </span>
                     {resp.isOwner && (
-                      <span className="text-red-600 font-bold">(主)</span>
+                      <span className="text-red-600 dark:text-red-400 font-bold">(主)</span>
                     )}
                     {resp.isSubOwner && (
-                      <span className="text-orange-600 font-bold">(副)</span>
+                      <span className="text-orange-600 dark:text-orange-400">(副)</span>
                     )}
-                    <span className="text-gray-500 text-sm" data-mtime={Math.floor(resp.postedAt.val.getTime() / 1000)}>
+                    <span className="text-gray-500 dark:text-gray-400 text-sm" data-mtime={Math.floor(resp.postedAt.val.getTime() / 1000)}>
                       {formatDate(resp.postedAt.val, {
                         acceptLanguage:
                           c.req.header("Accept-Language") ?? undefined,
                       })}
                     </span>
                     {(!threadAttrs.noId) && resp.dailyId && (
-                      <span className="text-gray-500 text-sm">
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">
                         ID: {resp.dailyId}
                       </span>
                     )}
                     {!threadAttrs.noId && resp.dailyId && (
-                      <span className="text-gray-500 text-sm">
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">
                         ID: {resp.dailyId}
                       </span>
                     )}
                     {resp.wattyoi && (
-                      <span className="text-gray-500 text-sm">
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">
                         {resp.wattyoi}
                       </span>
                     )}
                   </div>
-                  <div className="text-gray-800 max-h-80 overflow-y-auto whitespace-pre-wrap">
+                  <div className="text-gray-800 dark:text-gray-200 max-h-80 overflow-y-auto whitespace-pre-wrap">
                     <ResponseContentComponent
                       threadId={resp.threadId}
                       responseContent={resp.responseContent}
@@ -190,25 +190,25 @@ export default createRoute(async (c) => {
           <div className="flex gap-4 mt-2">
             <a
               href={`/threads/${allResponsesResult.value.thread.threadId.val}`}
-              className="text-blue-600 hover:underline"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
             >
               全部読む
             </a>
             <a
               href={`/threads/${allResponsesResult.value.thread.threadId.val}/l50`}
-              className="text-blue-600 hover:underline"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
             >
               最新50件
             </a>
             <a
               href={`/threads/${allResponsesResult.value.thread.threadId.val}/1-100`}
-              className="text-blue-600 hover:underline"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
             >
               1-100
             </a>
             <a
               href={`/threads/${allResponsesResult.value.thread.threadId.val}/${latestResponseNumber}-`}
-              className="text-blue-600 hover:underline"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
             >
               新着レスの表示
             </a>
@@ -216,7 +216,7 @@ export default createRoute(async (c) => {
         </section>
         <section
           id="response-form"
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
         >
           <h2 className="text-2xl font-semibold mb-4">返信する</h2>
           <form
@@ -225,49 +225,49 @@ export default createRoute(async (c) => {
             className="flex flex-col gap-4"
           >
             <div className="flex flex-col md:flex-row gap-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2 md:w-1/2">
+              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2 md:w-1/2">
                 名前:
                 <input
                   type="text"
                   name="name"
                   value={userCookie.name}
-                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="border border-gray-400 dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </label>
-              <label className="block text-gray-700 text-sm font-bold mb-2 md:w-1/2">
+              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2 md:w-1/2">
                 X ID:
                 <input
                   type="text"
                   name="mail"
                   value={userCookie.mail}
                   placeholder="@username"
-                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="border border-gray-400 dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </label>
             </div>
             {threadAttrs.password && (
-              <label className="block text-gray-700 text-sm font-bold mb-2">
+              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                 スレッドパスワード:
                 <input
                   type="password"
                   name="password"
-                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="border border-gray-400 dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </label>
             )}
             <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">
+              <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                 本文:
                 <textarea
                   name="content"
                   required
-                  className="border border-gray-400 rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 h-32"
+                  className="border border-gray-400 dark:border-gray-600 rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 h-32"
                 ></textarea>
               </label>
             </div>
             <button
               type="submit"
-              className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="bg-purple-500 dark:bg-purple-600 hover:bg-purple-700 dark:hover:bg-purple-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               書き込む
             </button>
@@ -285,7 +285,7 @@ export default createRoute(async (c) => {
         <a
           href="#response-form"
           className="
-            bg-purple-500 hover:bg-purple-700 text-white 
+            bg-purple-500 dark:bg-purple-600 hover:bg-purple-700 dark:hover:bg-purple-800 text-white 
             p-4 md:p-6            
             lg:p-5               
             rounded-full shadow-lg focus:outline-none transition 

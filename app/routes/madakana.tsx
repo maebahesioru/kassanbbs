@@ -79,51 +79,51 @@ export default createRoute(async (c) => {
 
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
-      <section className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">規制情報</h1>
-        <p className="text-gray-600 text-sm mb-6">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">規制情報</h1>
+        <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
           現在のアクセス制限状態を表示します
         </p>
 
-        <div className="bg-gray-50 rounded p-4 mb-6">
-          <h2 className="text-lg font-semibold text-gray-700 mb-3">
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded p-4 mb-6">
+          <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">
             接続情報
           </h2>
           <table className="min-w-full text-sm">
             <tbody>
               <tr className="border-b">
-                <td className="py-2 pr-4 font-bold text-gray-600 w-32">
+                <td className="py-2 pr-4 font-bold text-gray-600 dark:text-gray-400 w-32">
                   IPアドレス
                 </td>
-                <td className="py-2 font-mono text-gray-800">
+                <td className="py-2 font-mono text-gray-800 dark:text-gray-200">
                   {ipAddress || "取得できません"}
                 </td>
               </tr>
               <tr className="border-b">
-                <td className="py-2 pr-4 font-bold text-gray-600">
+                <td className="py-2 pr-4 font-bold text-gray-600 dark:text-gray-400">
                   デバイス
                 </td>
-                <td className="py-2 text-gray-800">
+                <td className="py-2 text-gray-800 dark:text-gray-200">
                   {clientInfo
                     ? clientInfo.deviceName
                     : "不明"}
                 </td>
               </tr>
               <tr className="border-b">
-                <td className="py-2 pr-4 font-bold text-gray-600">
+                <td className="py-2 pr-4 font-bold text-gray-600 dark:text-gray-400">
                   スマートフォン
                 </td>
-                <td className="py-2 text-gray-800">
+                <td className="py-2 text-gray-800 dark:text-gray-200">
                   {clientInfo && clientInfo.isSmartphone
                     ? "はい"
                     : "いいえ"}
                 </td>
               </tr>
               <tr>
-                <td className="py-2 pr-4 font-bold text-gray-600">
+                <td className="py-2 pr-4 font-bold text-gray-600 dark:text-gray-400">
                   フィーチャーフォン
                 </td>
-                <td className="py-2 text-gray-800">
+                <td className="py-2 text-gray-800 dark:text-gray-200">
                   {clientInfo && clientInfo.isFeaturePhone
                     ? "はい"
                     : "いいえ"}
@@ -136,15 +136,15 @@ export default createRoute(async (c) => {
         <div
           className={`rounded p-4 mb-6 ${
             activeBans.length > 0
-              ? "bg-red-50 border border-red-200"
+              ? "bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800"
               : "bg-green-50 border border-green-200"
           }`}
         >
-          <h2 className="text-lg font-semibold text-gray-700 mb-3">
+          <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">
             アクティブな制限
           </h2>
           {activeBans.length === 0 ? (
-            <p className="text-green-700">
+            <p className="text-green-700 dark:text-green-300">
               現在、有効な制限はありません。通常通り投稿できます。
             </p>
           ) : (
@@ -152,12 +152,12 @@ export default createRoute(async (c) => {
               {activeBans.map((ban, i) => (
                 <div
                   key={i}
-                  className="bg-white rounded p-3 border border-red-100"
+                  className="bg-white dark:bg-gray-800 rounded p-3 border border-red-100"
                 >
                   <span className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-700 mb-1">
                     {ban.type}
                   </span>
-                  <p className="text-sm text-gray-700">{ban.detail}</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">{ban.detail}</p>
                 </div>
               ))}
             </div>
@@ -165,21 +165,21 @@ export default createRoute(async (c) => {
         </div>
       </section>
 
-      <section className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">
           IP制限一覧
         </h2>
-        <p className="text-gray-600 text-sm mb-4">
+        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
           設定されているIP制限ルールの一覧です。あなたのIPに一致するルールは太字で表示されます。
         </p>
 
         {denyRules.length === 0 && allowRules.length === 0 ? (
-          <p className="text-gray-500">IP制限は設定されていません。</p>
+          <p className="text-gray-500 dark:text-gray-400">IP制限は設定されていません。</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
-                <tr className="bg-gray-100">
+                <tr className="bg-gray-100 dark:bg-gray-900">
                   <th className="p-2 text-left">IP/CIDR</th>
                   <th className="p-2 text-left">種別</th>
                   <th className="p-2 text-left">備考</th>
@@ -213,7 +213,7 @@ export default createRoute(async (c) => {
                           className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
                             rule.restrictionType === "deny"
                               ? "bg-red-100 text-red-700"
-                              : "bg-green-100 text-green-700"
+                              : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
                           }`}
                         >
                           {rule.restrictionType === "deny"
@@ -221,7 +221,7 @@ export default createRoute(async (c) => {
                             : "許可"}
                         </span>
                       </td>
-                      <td className="p-2 text-gray-600">
+                      <td className="p-2 text-gray-600 dark:text-gray-400">
                         {rule.note}
                       </td>
                       <td className="p-2">
@@ -243,40 +243,40 @@ export default createRoute(async (c) => {
       </section>
 
       {ninpochoConfig && (
-        <section className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">
+        <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">
             忍法帖情報
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-            <div className="bg-gray-50 rounded p-3">
-              <p className="text-xs text-gray-500 mb-1">忍法帖の状態</p>
-              <p className="font-semibold text-gray-800">
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">忍法帖の状態</p>
+              <p className="font-semibold text-gray-800 dark:text-gray-200">
                 {ninpochoConfig.val.enabled ? "有効" : "無効"}
               </p>
             </div>
             {ninpochoRecord && (
               <>
-                <div className="bg-gray-50 rounded p-3">
-                  <p className="text-xs text-gray-500 mb-1">
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                     エラー回数
                   </p>
-                  <p className="font-semibold text-gray-800">
+                  <p className="font-semibold text-gray-800 dark:text-gray-200">
                     {ninpochoRecord.val.errorCount}
                   </p>
                 </div>
-                <div className="bg-gray-50 rounded p-3">
-                  <p className="text-xs text-gray-500 mb-1">
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                     BANレベル
                   </p>
-                  <p className="font-semibold text-gray-800">
+                  <p className="font-semibold text-gray-800 dark:text-gray-200">
                     レベル {ninpochoRecord.val.banLevel}
                   </p>
                 </div>
-                <div className="bg-gray-50 rounded p-3">
-                  <p className="text-xs text-gray-500 mb-1">
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                     BAN期限
                   </p>
-                  <p className="font-semibold text-gray-800">
+                  <p className="font-semibold text-gray-800 dark:text-gray-200">
                     {ninpochoRecord.val.banUntil
                       ? ninpochoRecord.val.banUntil.toLocaleString(
                           "ja-JP"
@@ -284,11 +284,11 @@ export default createRoute(async (c) => {
                       : "なし"}
                   </p>
                 </div>
-                <div className="bg-gray-50 rounded p-3">
-                  <p className="text-xs text-gray-500 mb-1">
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                     最終エラー日時
                   </p>
-                  <p className="font-semibold text-gray-800">
+                  <p className="font-semibold text-gray-800 dark:text-gray-200">
                     {ninpochoRecord.val.lastErrorAt
                       ? ninpochoRecord.val.lastErrorAt.toLocaleString(
                           "ja-JP"
@@ -296,11 +296,11 @@ export default createRoute(async (c) => {
                       : "なし"}
                   </p>
                 </div>
-                <div className="bg-gray-50 rounded p-3">
-                  <p className="text-xs text-gray-500 mb-1">
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                     初回記録日時
                   </p>
-                  <p className="font-semibold text-gray-800">
+                  <p className="font-semibold text-gray-800 dark:text-gray-200">
                     {ninpochoRecord.val.firstSeenAt.toLocaleString(
                       "ja-JP"
                     )}
@@ -311,16 +311,16 @@ export default createRoute(async (c) => {
           </div>
 
           {!ninpochoRecord && ninpochoConfig.val.enabled && (
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
               このIPアドレスには忍法帖の記録がありません。
             </p>
           )}
 
           <details className="mt-4">
-            <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-700">
+            <summary className="text-sm text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:text-gray-300">
               忍法帖の設定詳細を表示
             </summary>
-            <div className="mt-2 text-sm text-gray-600 space-y-1">
+            <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 space-y-1">
               <p>
                 レベル1:{" "}
                 {ninpochoConfig.val.errorThreshold1}回のエラーで
@@ -350,7 +350,7 @@ export default createRoute(async (c) => {
       )}
 
       <div className="text-center">
-        <a href="/" className="text-blue-500 hover:underline">
+        <a href="/" className="text-blue-500 dark:text-blue-400 hover:underline">
           掲示板に戻る
         </a>
       </div>

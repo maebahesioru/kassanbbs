@@ -13,11 +13,11 @@ import { ErrorMessage } from "../../components/ErrorMessage";
 export default createRoute(async (c) => {
   return c.render(
     <main className="container mx-auto flex-grow py-8 px-4">
-      <section className="bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6">
           パスワード確認
         </h1>
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">
+        <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4">
           パスワードを確認します。
         </h2>
         <form method="post" action="" className="w-full">
@@ -25,7 +25,7 @@ export default createRoute(async (c) => {
             <div className="flex flex-col">
               <label
                 htmlFor="adminUsername"
-                className="text-gray-700 text-sm font-bold mb-1"
+                className="text-gray-700 dark:text-gray-300 text-sm font-bold mb-1"
               >
                 ユーザー名
               </label>
@@ -33,13 +33,13 @@ export default createRoute(async (c) => {
                 type="text"
                 id="adminUsername"
                 name="adminUsername"
-                className="border border-gray-400 rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="border border-gray-400 dark:border-gray-600 rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
             <div className="flex flex-col">
               <label
                 htmlFor="adminPassword"
-                className="text-gray-700 text-sm font-bold mb-1"
+                className="text-gray-700 dark:text-gray-300 text-sm font-bold mb-1"
               >
                 パスワード
               </label>
@@ -47,14 +47,14 @@ export default createRoute(async (c) => {
                 type="password"
                 id="adminPassword"
                 name="adminPassword"
-                className="border border-gray-400 rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="border border-gray-400 dark:border-gray-600 rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
           </div>
           <div className="mt-6">
             <button
               type="submit"
-              className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="bg-purple-500 dark:bg-purple-600 hover:bg-purple-700 dark:hover:bg-purple-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               送信
             </button>

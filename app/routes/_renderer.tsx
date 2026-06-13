@@ -13,6 +13,7 @@ import { ErrorMessage } from "../components/ErrorMessage";
 import { getIpAddress } from "../utils/getIpAddress";
 import ImageOverlay from "../islands/ImageOverlay";
 import MobileMenu from "../islands/MobileMenu";
+import DarkModeToggle from "../islands/DarkModeToggle";
 
 export default jsxRenderer(async ({ children }) => {
   const c = useRequestContext();
@@ -110,7 +111,7 @@ export default jsxRenderer(async ({ children }) => {
   const currentBoardKey = c.get("board")?.boardKey || "main";
 
   return (
-    <html lang="ja">
+    <html lang="ja" class="">
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -138,7 +139,7 @@ export default jsxRenderer(async ({ children }) => {
         backgroundColor: bgColor,
         color: textColor,
       }}>
-        <div className="flex flex-col min-h-screen bg-gray-100 font-aahub-light4">
+        <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 font-aahub-light4">
           <header className="bg-gradient-to-r from-purple-500 to-orange-200 text-white w-full py-4 px-6">
             <div className="container mx-auto flex items-center justify-between">
               <div>
@@ -176,7 +177,7 @@ export default jsxRenderer(async ({ children }) => {
                     ))}
                   </div>
                 )}
-                <nav className="hidden md:flex gap-4 text-sm">
+                <nav className="hidden md:flex gap-4 text-sm items-center">
                   <a href={"/search" + (currentBoardKey !== "main" ? `?board=${currentBoardKey}` : "")} className="hover:underline">検索</a>
                   <a href={"/subback.html" + (currentBoardKey !== "main" ? `?board=${currentBoardKey}` : "")} className="hover:underline">スレッド一覧</a>
                   <a href="/timeline" className="hover:underline">タイムライン</a>
@@ -184,6 +185,7 @@ export default jsxRenderer(async ({ children }) => {
                   <a href="/gold_ranking" className="hover:underline">ゴールドランキング</a>
                   <a href="/madakana" className="hover:underline">規制情報</a>
                   <a href="/admin" className="hover:underline">管理</a>
+                  <DarkModeToggle />
                 </nav>
               </div>
               <button id="mobile-menu-toggle" className="md:hidden flex flex-col gap-1 p-2">
@@ -202,12 +204,13 @@ export default jsxRenderer(async ({ children }) => {
                 <a href="/gold_ranking" className="hover:underline">ゴールドランキング</a>
                 <a href="/madakana" className="hover:underline">規制情報</a>
                 <a href="/admin" className="hover:underline">管理</a>
+                <DarkModeToggle />
               </nav>
             </div>
           </header>
 
           {banners.length > 0 && (
-            <div className="bg-white border-b border-gray-200">
+            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
               <div className="container mx-auto py-3 px-4">
                 <div className="flex flex-wrap gap-3 justify-center">
                   {banners.map((banner) => (
@@ -257,7 +260,7 @@ export default jsxRenderer(async ({ children }) => {
           {children}
           <ImageOverlay />
         </div>
-        <footer className="text-center text-xs text-gray-500 py-4">
+        <footer className="text-center text-xs text-gray-500 dark:text-gray-400 py-4">
           {VAK_VERSION_DISPLAY}
         </footer>
         {footHtml && raw(footHtml)}
