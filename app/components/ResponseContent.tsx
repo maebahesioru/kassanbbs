@@ -76,12 +76,6 @@ export const ResponseContentComponent: FC<{
 
     return (
       <div className="post-content">
-        {isOwner && (
-          <span className="text-red-600 font-bold text-xs mr-1">(主)</span>
-        )}
-        {isSubOwner && (
-          <span className="text-orange-600 font-bold text-xs mr-1">(副)</span>
-        )}
         {beId && (
           <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded mr-1">
             <a
@@ -93,16 +87,6 @@ export const ResponseContentComponent: FC<{
             >
               BE:{beId}
             </a>
-          </span>
-        )}
-        {!noId && dailyId && (
-          <span className="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded mr-1">
-            ID:{dailyId}
-          </span>
-        )}
-        {wattyoi && (
-          <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded mr-1">
-            {wattyoi}
           </span>
         )}
         {htmlShouldCollapse ? (
@@ -126,22 +110,6 @@ export const ResponseContentComponent: FC<{
 
   return (
     <div className="post-content">
-      {isOwner && (
-        <span className="text-red-600 font-bold text-xs mr-1">(主)</span>
-      )}
-      {isSubOwner && (
-        <span className="text-orange-600 font-bold text-xs mr-1">(副)</span>
-      )}
-      {!noId && dailyId && (
-        <span className="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded mr-1">
-          ID:{dailyId}
-        </span>
-      )}
-      {wattyoi && (
-        <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded mr-1">
-          {wattyoi}
-        </span>
-      )}
       {shouldCollapse ? (
         <details>
           <summary className="cursor-pointer text-gray-500 text-sm">

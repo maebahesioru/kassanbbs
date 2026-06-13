@@ -137,6 +137,12 @@ export default createRoute(async (c) => {
                               c.req.header("Accept-Language") ?? undefined,
                           })}
                         </span>
+                        <span className="text-gray-400 text-xs ml-2">
+                          ID: {resp.dailyId}
+                        </span>
+                        {resp.wattyoi && (
+                          <span className="text-gray-400 text-xs ml-1">{resp.wattyoi}</span>
+                        )}
                       </div>
                       <div className="text-gray-800 max-h-80 overflow-y-auto whitespace-pre-wrap">
                         <ResponseContentComponent
