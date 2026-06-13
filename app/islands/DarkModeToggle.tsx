@@ -6,8 +6,9 @@ export default function DarkModeToggle() {
   useEffect(() => {
     const stored = localStorage.getItem("darkMode");
     if (stored !== null) {
-      setIsDark(stored === "true");
-      document.documentElement.classList.toggle("dark", stored === "true");
+      const val = stored === "true";
+      setIsDark(val);
+      document.documentElement.classList.toggle("dark", val);
     } else {
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       setIsDark(prefersDark);
@@ -24,11 +25,12 @@ export default function DarkModeToggle() {
 
   return (
     <button
+      type="button"
       onClick={toggle}
-      className="text-xl p-1 hover:opacity-80 transition-opacity"
+      className="text-sm px-2 py-1 rounded hover:opacity-80 transition-opacity border border-current"
       aria-label={isDark ? "ライトモードに切り替え" : "ダークモードに切り替え"}
     >
-      {isDark ? "\u2600\uFE0F" : "\uD83C\uDF19"}
+      {isDark ? "☀ 明" : "☾ 暗"}
     </button>
   );
 }

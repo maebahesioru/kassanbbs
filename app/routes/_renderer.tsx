@@ -115,6 +115,11 @@ export default jsxRenderer(async ({ children }) => {
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var d=localStorage.getItem("darkMode");if(d==="true"||(d===null&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dark")})()`,
+          }}
+        />
         <title>{configResult.value.boardName.val}</title>
         <Link href="/app/style.css" rel="stylesheet" />
         <Script src="/app/client.ts" />
@@ -245,12 +250,12 @@ export default jsxRenderer(async ({ children }) => {
           )}
 
           {notices.length > 0 && (
-            <div className="bg-yellow-50 border-b border-yellow-200">
+            <div className="bg-yellow-50 dark:bg-yellow-900/30 border-b border-yellow-200 dark:border-yellow-800">
               <div className="container mx-auto py-3 px-4">
                 {notices.map((notice) => (
                   <div key={notice.title} className="mb-1 last:mb-0">
-                    <strong className="text-yellow-800">{notice.title}:</strong>{" "}
-                    <span className="text-yellow-700">{notice.content}</span>
+                    <strong className="text-yellow-800 dark:text-yellow-300">{notice.title}:</strong>{" "}
+                    <span className="text-yellow-700 dark:text-yellow-200">{notice.content}</span>
                   </div>
                 ))}
               </div>
