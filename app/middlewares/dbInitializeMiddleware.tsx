@@ -153,7 +153,7 @@ export const dbClientMiddlewareConditional = <ContextKey extends string = "db">(
   return async (c, next) => {
     // Honoのアダプタを使って現在のランタイム環境を取得
     const runtime = getRuntimeKey();
-    const isCloudflareWorkers = runtime === "workerd";
+    const isCloudflareWorkers = runtime === "workerd" && typeof globalThis.process?.versions?.workerd !== "undefined";
 
     let clientToUse: DbClient | null = null; // このリクエストで使用するクライアントインスタンス
 
