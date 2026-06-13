@@ -95,12 +95,8 @@ const initializeDbClientInternal = async (
   const finalOptions: postgres.Options<
     Record<string, postgres.PostgresType>
   > = {
-    // 提供されたオプションをベースにする
     ...postgresOptions,
-    // 環境に応じた調整 (例: Workersではデフォルトの最大接続数を調整)
-    max: isCloudflareWorkers
-      ? postgresOptions?.max ?? 1
-      : postgresOptions?.max,
+    max: postgresOptions?.max ?? 5,
   };
 
   // postgres クライアントを初期化 (リトライロジック付き)
